@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ user.name }} - Kisan Portal | OZONE Smart Farming</title>
+  <meta name="description" content="Personalized smart farming dashboard for registered farmers. Monitor crop health, live mandi rates, soil moisture, and government scheme disbursements.">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo_clean.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+</head>
+<body>
+
+  <!-- Dashboard Top Navigation Header -->
+  <header class="dash-header">
+    <div class="dash-header-container">
+      
+      <!-- Brand Logo -->
+      <a href="{{ url_for('home') }}" class="dash-brand">
+        <img src="{{ url_for('static', filename='images/logo_clean.png') }}" 
+             alt="OZONE Logo" 
+             style="height:36px; width:auto;"
+             onerror="this.src='{{ url_for('static', filename='images/logo.png') }}'">
+        <span>OZONE</span>
+        <span class="dash-brand-tag">Kisan Dashboard</span>
+      </a>
+
+      <!-- Right User Controls -->
+      <div class="dash-user-controls">
+        <div class="farmer-chip-badge">
+          <img src="{{ url_for('static', filename='images/farmer_feathered.png') }}" 
+               alt="{{ user.name }}" 
+               class="farmer-avatar-img"
+               onerror="this.src='{{ url_for('static', filename='images/farmer.png') }}'">
+          <span class="farmer-name-lbl">{{ user.name }} 🌾</span>
+        </div>
+
+        <a href="{{ url_for('index') }}" class="btn-nav-action btn-nav-outline" title="Return to Landing Page">
+          🌐 View Landing Page
+        </a>
+
+        <a href="{{ url_for('logout') }}" class="btn-nav-action btn-logout" title="Sign out of OZONE">
+          🚪 Logout
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Dashboard Main Content Container -->
+  <main class="dash-content-wrapper">
+
+    <!-- Welcome Hero Banner -->
+    <section class="dash-welcome-banner">
+      <div class="banner-welcome-text">
+        <h1>नमस्ते, {{ user.name }}! 🌾</h1>
+        <p>
+          Welcome to your smart farming command center. Your farm in <strong>{{ user.district or user.state or 'Punjab' }}</strong> is currently synchronized with regional APMC mandis, satellite weather telemetry, and the PM-KISAN database.
+        </p>
+      </div>
+
+      <div class="banner-quick-actions">
+        <a href="#mandiSection" class="btn-banner-action">
+          <span>📈</span> Today's Mandi Rates
+        </a>
+        <a href="#aiSection" class="btn-banner-action">
+          <span>🔬</span> AI Crop Doctor
+        </a>
+        <a href="#iotSection" class="btn-banner-action">
+          <span>📡</span> IoT Soil Health
+        </a>
+      </div>
+    </section>
+
+    <!-- Top 4 KPI Metrics -->
+    <section class="kpi-row-grid">
+      
+      <!-- KPI 1: Active Crop Cycle -->
+      <div class="kpi-metric-card">
+        <div class="kpi-card-top">
+          <div class="kpi-icon-pill">🌾</div>
+          <span class="kpi-status-tag green">Day 72 / 120</span>
+        </div>
+        <span class="kpi-card-title">PRIMARY CROP CYCLE</span>
+        <div class="kpi-card-value">{{ user.main_crops or 'Wheat (Kanak)' }}</div>
+        <div class="kpi-card-footer">
+          Flowering Stage • High chlorophyll density
+        </div>
+      </div>
+
+      <!-- KPI 2: Live Mandi Modal Rate -->
+      <div class="kpi-metric-card">
+        <div class="kpi-card-top">
+          <div class="kpi-icon-pill" style="background:rgba(2,132,199,0.12); color:#0284c7;">🛒</div>
+          <span class="kpi-status-tag green">▲ +3.4% Today</span>
+        </div>
+        <span class="kpi-card-title">MANDI MODAL BENCHMARK</span>
+        <div class="kpi-card-value">₹2,350 <span style="font-size:0.9rem; font-weight:600; color:var(--text-muted);">/ Quintal</span></div>
+        <div class="kpi-card-footer">
+          Khanna Mandi • Arrivals: 1,420 Tonnes
+        </div>
+      </div>
+
+      <!-- KPI 3: Weather & Spray Advisory -->
+      <div class="kpi-metric-card">
+        <div class="kpi-card-top">
+          <div class="kpi-icon-pill" style="background:rgba(245,158,11,0.12); color:#f59e0b;">⛅</div>
+          <span class="kpi-status-tag amber">Rain Warning</span>
+        </div>
+        <span class="kpi-card-title">HYPERLOCAL WEATHER</span>
+        <div class="kpi-card-value">28°C <span style="font-size:0.9rem; font-weight:600; color:var(--text-muted);">Partly Cloudy</span></div>
+        <div class="kpi-card-footer">
+          Rain in 36h • Postpone urea spraying
+        </div>
+      </div>
+
+      <!-- KPI 4: Government Scheme Status -->
+      <div class="kpi-metric-card">
+        <div class="kpi-card-top">
+          <div class="kpi-icon-pill" style="background:rgba(16,185,129,0.12); color:#10b981;">🏛️</div>
+          <span class="kpi-status-tag green">DBT Active</span>
+        </div>
+        <span class="kpi-card-title">PM-KISAN BENEFIT</span>
+        <div class="kpi-card-value">₹2,000 <span style="font-size:0.9rem; font-weight:600; color:var(--text-muted);">Credited</span></div>
+        <div class="kpi-card-footer">
+          Aadhaar Linked • Next installment in Dec
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Main 2-Column Dashboard Grid -->
+    <div class="dash-main-grid">
+
+      <!-- LEFT COLUMN: Live Tools -->
+      <div class="dash-left-column">
+
+        <!-- Live Mandi Rates Panel -->
+        <div class="dash-panel-card" id="mandiSection">
+          <div class="panel-header-row">
+            <h2 class="panel-title">
+              <span>🛒</span> Live APMC Mandi Watchlist
+            </h2>
+            <span style="font-size:0.78rem; font-weight:700; color:var(--accent); background:rgba(22,163,74,0.1); padding:4px 10px; border-radius:9999px;">
+              ● Real-Time Feed
+            </span>
+          </div>
+
+          <table class="mandi-table">
+            <thead>
+              <tr>
+                <th>Crop Variety</th>
+                <th>APMC Mandi</th>
+                <th>Min / Max (₹/Q)</th>
+                <th>Modal Price</th>
+                <th>24h Trend</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Wheat (Sharbati / Lokwan)</strong></td>
+                <td>Khanna Mandi, Punjab</td>
+                <td>₹2,150 - ₹2,480</td>
+                <td class="rate-badge">₹2,350</td>
+                <td class="trend-up">▲ +3.4%</td>
+              </tr>
+              <tr>
+                <td><strong>Basmati Rice (Pusa 1121)</strong></td>
+                <td>Karnal Mandi, Haryana</td>
+                <td>₹3,800 - ₹4,450</td>
+                <td class="rate-badge">₹4,250</td>
+                <td class="trend-up">▲ +2.1%</td>
+              </tr>
+              <tr>
+                <td><strong>Mustard (Sarson - Black)</strong></td>
+                <td>Kota Mandi, Rajasthan</td>
+                <td>₹5,100 - ₹5,680</td>
+                <td class="rate-badge">₹5,420</td>
+                <td class="trend-up">▲ +1.8%</td>
+              </tr>
+              <tr>
+                <td><strong>Cotton (Medium Staple)</strong></td>
+                <td>Rajkot Mandi, Gujarat</td>
+                <td>₹7,100 - ₹7,850</td>
+                <td class="rate-badge">₹7,520</td>
+                <td class="trend-down">▼ -0.5%</td>
+              </tr>
+              <tr>
+                <td><strong>Soybean (Yellow Seed)</strong></td>
+                <td>Indore Mandi, MP</td>
+                <td>₹4,200 - ₹4,750</td>
+                <td class="rate-badge">₹4,560</td>
+                <td class="trend-up">▲ +4.2%</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="margin-top:16px; padding:12px 16px; background:#f0fdf4; border-radius:var(--radius-sm); border-left:4px solid var(--accent); font-size:0.84rem; color:#166534;">
+            <strong>Mandi Advisory:</strong> Wheat prices are trending upwards due to festive export procurement. Target next Tuesday for peak liquidation.
+          </div>
+        </div>
+
+        <!-- AI Crop Health & Disease Diagnostic Panel -->
+        <div class="dash-panel-card" id="aiSection">
+          <div class="panel-header-row">
+            <h2 class="panel-title">
+              <span>🔬</span> AI Plant Health &amp; Crop Doctor
+            </h2>
+            <span class="panel-action-link" style="cursor:pointer;" onclick="alert('Camera feed ready! Hold leaf 15cm from camera.');">
+              + New Leaf Scan
+            </span>
+          </div>
+
+          <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
+            <img src="{{ url_for('static', filename='images/healthy_wheat.jpg') }}" 
+                 alt="Current Wheat Crop Sample" 
+                 style="width:110px; height:110px; border-radius:var(--radius-sm); object-fit:cover; border:2px solid var(--accent);">
+            
+            <div style="flex:1; min-width:240px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <h3 style="font-size:1.05rem; font-weight:800; color:var(--text-main);">Primary Field Health: 96% Optimal</h3>
+                <span style="font-size:0.75rem; background:rgba(22,163,74,0.12); color:var(--accent); font-weight:700; padding:2px 8px; border-radius:9999px;">No Fungus</span>
+              </div>
+              <p style="font-size:0.84rem; color:var(--text-muted); line-height:1.5; margin-bottom:10px;">
+                Computer vision scan detected zero signs of early blight or stripe rust pustules. Leaf chlorophyll absorption is in the top 5th percentile for regional crops.
+              </p>
+              <div style="font-size:0.78rem; font-weight:600; color:var(--primary); background:#f1f5f2; padding:6px 12px; border-radius:var(--radius-sm);">
+                Recommended Action: Continue current drip irrigation interval; spray neem oil preventive if morning dew exceeds 80%.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- IoT Soil & Automated Irrigation Monitor -->
+        <div class="dash-panel-card" id="iotSection">
+          <div class="panel-header-row">
+            <h2 class="panel-title">
+              <span>📡</span> IoT Soil Moisture &amp; Pump Telemetry
+            </h2>
+            <span style="font-size:0.76rem; color:var(--text-muted);">Sensor Node #04 • Battery 98%</span>
+          </div>
+
+          <div class="iot-sensor-grid">
+            <div class="sensor-box">
+              <span style="font-size:1.5rem;">💧</span>
+              <div class="sensor-val">24%</div>
+              <div class="sensor-lbl">Soil Moisture (Depth 15cm)</div>
+              <span style="font-size:0.7rem; color:var(--accent); font-weight:700;">Optimal Moisture</span>
+            </div>
+
+            <div class="sensor-box">
+              <span style="font-size:1.5rem;">🧪</span>
+              <div class="sensor-val">6.8 pH</div>
+              <div class="sensor-lbl">Soil Acidity / Alkaline</div>
+              <span style="font-size:0.7rem; color:var(--accent); font-weight:700;">Neutral Fertile</span>
+            </div>
+
+            <div class="sensor-box">
+              <span style="font-size:1.5rem;">☀️</span>
+              <div class="sensor-val">5 HP</div>
+              <div class="sensor-lbl">PM-Kusum Solar Pump</div>
+              <span style="font-size:0.7rem; color:#0284c7; font-weight:700;">Pumping at 42 PSI</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: Farmer Profile & Tasks -->
+      <div class="dash-right-column">
+
+        <!-- Farmer Digital Profile Card -->
+        <div class="farmer-profile-card">
+          <div class="profile-avatar-row">
+            <img src="{{ url_for('static', filename='images/farmer_feathered.png') }}" 
+                 alt="{{ user.name }}" 
+                 class="profile-avatar-big"
+                 onerror="this.src='{{ url_for('static', filename='images/farmer.png') }}'">
+            <div class="profile-info">
+              <h3>{{ user.name }}</h3>
+              <p>Registered Farmer ID: <strong>OZONE-2026-{{ user.id or '8921' }}</strong></p>
+              <span style="font-size:0.72rem; background:rgba(22,163,74,0.12); color:var(--accent); font-weight:700; padding:2px 8px; border-radius:9999px;">
+                Verified Kisan
+              </span>
+            </div>
+          </div>
+
+          <div class="profile-kv-list">
+            <div class="profile-kv-item">
+              <span class="kv-key">Email ID</span>
+              <span class="kv-val">{{ user.email }}</span>
+            </div>
+            <div class="profile-kv-item">
+              <span class="kv-key">Mobile</span>
+              <span class="kv-val">{{ user.mobile or '9876543210' }}</span>
+            </div>
+            <div class="profile-kv-item">
+              <span class="kv-key">Landholding</span>
+              <span class="kv-val">{{ user.total_land or '4.5' }} Acres ({{ user.land_ownership or 'Owned' }})</span>
+            </div>
+            <div class="profile-kv-item">
+              <span class="kv-key">Location</span>
+              <span class="kv-val">{{ user.district or 'Ludhiana' }}, {{ user.state or 'Punjab' }}</span>
+            </div>
+            <div class="profile-kv-item">
+              <span class="kv-key">Soil Type</span>
+              <span class="kv-val">{{ user.soil_type or 'Alluvial / जलोढ़' }}</span>
+            </div>
+            <div class="profile-kv-item">
+              <span class="kv-key">KCC Credit Card</span>
+              <span class="kv-val" style="color:var(--accent);">Active (@ 4% Interest)</span>
+            </div>
+            <div class="profile-kv-item">
+              <span class="kv-key">Preferred Language</span>
+              <span class="kv-val">{{ user.pref_language or 'Hindi / हिंदी' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weekly Farming Checklist -->
+        <div class="dash-panel-card">
+          <div class="panel-header-row">
+            <h2 class="panel-title">
+              <span>📋</span> Weekly Agro-Tasks
+            </h2>
+            <span style="font-size:0.76rem; color:var(--text-muted);">Week 14</span>
+          </div>
+
+          <div class="checklist-item">
+            <input type="checkbox" checked class="checklist-checkbox" id="task1">
+            <div>
+              <label for="task1" class="checklist-title">Scout field for Yellow Rust</label>
+              <div class="checklist-desc">Completed yesterday • Leaves clean</div>
+            </div>
+          </div>
+
+          <div class="checklist-item">
+            <input type="checkbox" class="checklist-checkbox" id="task2">
+            <div>
+              <label for="task2" class="checklist-title">Drainage Inspection</label>
+              <div class="checklist-desc">Prepare field borders before tomorrow's rain</div>
+            </div>
+          </div>
+
+          <div class="checklist-item">
+            <input type="checkbox" class="checklist-checkbox" id="task3">
+            <div>
+              <label for="task3" class="checklist-title">Postpone Urea Spraying</label>
+              <div class="checklist-desc">Wait for clear skies on Sunday morning</div>
+            </div>
+          </div>
+
+          <div class="checklist-item">
+            <input type="checkbox" class="checklist-checkbox" id="task4">
+            <div>
+              <label for="task4" class="checklist-title">Collect Soil Health Card</label>
+              <div class="checklist-desc">Available at block agricultural office</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Government Subsidies Tracking Widget -->
+        <div class="dash-panel-card" style="background: linear-gradient(135deg, #f0fdf4 0%, #e8f5e9 100%); border-color: rgba(22,163,74,0.3);">
+          <h3 style="font-size:1rem; font-weight:800; color:var(--primary); margin-bottom:8px;">
+            🏛️ Direct Benefit Subsidy Tracker
+          </h3>
+          <p style="font-size:0.82rem; color:var(--text-muted); line-height:1.5; margin-bottom:12px;">
+            Your PM-KISAN Aadhaar biometric validation is 100% compliant.
+          </p>
+          <div style="font-size:0.8rem; font-weight:700; color:var(--primary); display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span>16th Installment (₹2,000)</span>
+            <span style="color:var(--accent);">Disbursed ✓</span>
+          </div>
+          <div style="font-size:0.8rem; font-weight:700; color:var(--primary); display:flex; justify-content:space-between;">
+            <span>Solar Pump Subsidy (60%)</span>
+            <span style="color:var(--accent);">Approved ✓</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</body>
+</html>
