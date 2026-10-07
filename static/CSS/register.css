@@ -1,0 +1,552 @@
+/* ==========================================================================
+   OZONE Smart Farming - Dedicated Farmer Registration Stylesheet
+   Bilingual English / Hindi Design System
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary-green: #0d3820;
+  --primary-dark: #082615;
+  --accent-green: #16a34a;
+  --accent-green-hover: #15803d;
+  --accent-light: #eaf8ee;
+  --text-main: #0f172a;
+  --text-muted: #526477;
+  --text-hindi: #6b7a72;
+  --border-color: #d8e2dc;
+  --border-focus: #16a34a;
+  --bg-page: #edf4f0;
+  --bg-card: #ffffff;
+  --bg-input: #f7faf8;
+  --danger: #dc2626;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --shadow-card: 0 20px 45px -10px rgba(13, 56, 32, 0.18), 0 10px 20px -5px rgba(0, 0, 0, 0.04);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Poppins', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 16px;
+  position: relative;
+  line-height: 1.5;
+}
+
+.hindi-sub, .hindi-label, .hindi-btn, .hindi-desc {
+  font-family: 'Noto Sans Devanagari', 'Poppins', sans-serif;
+}
+
+/* Background image with frosted overlay */
+.reg-bg-backdrop {
+  position: fixed;
+  inset: 0;
+  background-image: url('../images/farm-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
+  filter: blur(2px);
+  transform: scale(1.02);
+}
+
+.reg-bg-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(237, 244, 240, 0.92) 0%, rgba(225, 238, 230, 0.95) 100%);
+}
+
+/* Top bar with back link */
+.reg-topbar {
+  width: 100%;
+  max-width: 1160px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.btn-back-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  color: var(--primary-green);
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.88rem;
+  text-decoration: none;
+  border: 1px solid rgba(22, 163, 74, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.25s ease;
+}
+
+.btn-back-home:hover {
+  background: var(--primary-green);
+  color: #ffffff;
+  transform: translateX(-3px);
+  box-shadow: 0 4px 12px rgba(13, 56, 32, 0.2);
+}
+
+.portal-tag {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--primary-green);
+  background: rgba(22, 163, 74, 0.12);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Main Container Card */
+.reg-container-card {
+  display: flex;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  width: 100%;
+  /* max-width: 1160px; */
+  min-height: 85vh;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+/* Left Sidebar */
+.reg-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  background: #0d3820 url('../images/farm-bg.jpg') no-repeat center top;
+  background-size: cover;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 36px 30px;
+  color: #ffffff;
+}
+
+.reg-sidebar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(13, 56, 32, 0.45) 0%, rgba(9, 36, 21, 0.88) 100%);
+}
+
+.sidebar-header,
+.sidebar-footer-content {
+  position: relative;
+  z-index: 2;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.sidebar-logo-img {
+  height: 42px;
+  width: auto;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.sidebar-brand-name {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-subtext {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.55;
+  margin-bottom: 28px;
+}
+
+.sidebar-benefits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.benefit-pill-item {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.benefit-icon {
+  font-size: 1.1rem;
+}
+
+.sidebar-helpline-box {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.sidebar-helpline-num {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #4ade80;
+  display: block;
+  margin-top: 2px;
+}
+
+/* Right Form Panel */
+.reg-form-panel {
+  flex: 1;
+  padding: 38px 46px 44px;
+  overflow-y: auto;
+  max-height: 88vh;
+  background: #ffffff;
+}
+
+.form-header-title-box {
+  text-align: center;
+  margin-bottom: 28px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #edf2ed;
+}
+
+.form-main-heading {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--primary-green);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.form-main-heading .hindi-sub {
+  font-size: 1.35rem;
+  color: var(--accent-green);
+  font-weight: 700;
+}
+
+.form-sub-desc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.form-sub-desc .hindi-desc {
+  font-size: 0.82rem;
+  color: var(--text-hindi);
+}
+
+/* Alert Boxes */
+.alert-box {
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.alert-box.success {
+  background: rgba(22, 163, 74, 0.12);
+  border: 1.5px solid var(--accent-green);
+  color: #15803d;
+}
+
+.alert-box.error {
+  background: rgba(220, 38, 38, 0.1);
+  border: 1.5px solid var(--danger);
+  color: #b91c1c;
+}
+
+/* Form Sections */
+.form-step-section {
+  margin-bottom: 26px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #eef2ee;
+}
+
+.form-step-section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 16px;
+  padding-bottom: 0;
+}
+
+.section-legend-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--primary-green);
+  margin-bottom: 18px;
+}
+
+.legend-badge-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(22, 163, 74, 0.12);
+  border: 1.5px solid var(--accent-green);
+  color: var(--accent-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.95rem;
+}
+
+.section-legend-header .hindi-sub {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Responsive Grid Form */
+.grid-4-fields {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px 20px;
+}
+
+.field-group.span-2 {
+  grid-column: span 2;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.field-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.field-label .hindi-label {
+  font-weight: 500;
+  color: var(--text-hindi);
+  font-size: 0.72rem;
+}
+
+.req-star {
+  color: var(--danger);
+}
+
+/* Inputs & Selects */
+.input-control,
+.select-control {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  color: var(--text-main);
+  background: var(--bg-input);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: all 0.22s ease;
+}
+
+.input-control::placeholder {
+  color: #9aa5a0;
+  font-size: 0.78rem;
+}
+
+.input-control:focus,
+.select-control:focus {
+  border-color: var(--accent-green);
+  background: #ffffff;
+  box-shadow: 0 0 0 3.5px rgba(22, 163, 74, 0.14);
+}
+
+.select-control {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' stroke='%2316a34a' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 32px;
+  cursor: pointer;
+}
+
+.input-with-toggle {
+  position: relative;
+}
+
+.input-with-toggle .input-control {
+  padding-right: 38px;
+}
+
+.eye-toggle-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eye-toggle-btn:hover {
+  color: var(--accent-green);
+}
+
+/* Form Footer Actions */
+.form-footer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 14px;
+  padding-top: 18px;
+  border-top: 1px solid #edf2ed;
+}
+
+.terms-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: var(--text-main);
+  cursor: pointer;
+  max-width: 520px;
+}
+
+.terms-label input[type="checkbox"] {
+  margin-top: 3px;
+  accent-color: var(--accent-green);
+  width: 16px;
+  height: 16px;
+}
+
+.terms-label a {
+  color: var(--accent-green);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.btn-register-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--primary-green);
+  color: #ffffff;
+  border: none;
+  padding: 13px 28px;
+  font-size: 0.94rem;
+  font-weight: 700;
+  font-family: inherit;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(13, 56, 32, 0.28);
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.btn-register-submit:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(13, 56, 32, 0.38);
+}
+
+.already-account-row {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.already-account-row a {
+  color: var(--accent-green);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.already-account-row a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 1024px) {
+  .grid-4-fields {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .field-group.span-2 {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 860px) {
+  .reg-container-card {
+    flex-direction: column;
+  }
+  .reg-sidebar {
+    display: none;
+  }
+  .reg-form-panel {
+    padding: 26px 20px;
+  }
+}
+
+@media (max-width: 580px) {
+  .grid-4-fields {
+    grid-template-columns: 1fr;
+  }
+  .field-group.span-2 {
+    grid-column: span 1;
+  }
+  .form-footer-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .btn-register-submit {
+    justify-content: center;
+    width: 100%;
+  }
+  .form-main-heading {
+    font-size: 1.4rem;
+  }
+}

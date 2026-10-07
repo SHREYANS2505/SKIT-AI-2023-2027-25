@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farmer Registration | Kisan Panjikaran - OZONE Smart Farming</title>
+  <meta name="description" content="Register your farm profile on OZONE Smart Farming platform for personalized AI crop insights, live mandi rates, and direct government scheme benefits.">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo_clean.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+</head>
+<body>
+
+  <!-- Background Backdrop with Frosted Blur -->
+  <div class="reg-bg-backdrop"></div>
+
+  <!-- Top Navigation & Brand Bar -->
+  <!-- <div class="reg-topbar">
+    <a href="{{ url_for('index') }}" class="btn-back-home">
+      ← Back to Home / मुख्य पृष्ठ पर वापस जाएँ
+    </a>
+    <div class="portal-tag">
+      <span>🌾</span> OZONE National Agriculture Portal
+    </div>
+  </div> -->
+
+  <!-- Main Registration Card -->
+  <div class="reg-container-card">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="reg-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <img src="{{ url_for('static', filename='images/logo_clean.png') }}" 
+               alt="OZONE Smart Farming Logo" 
+               class="sidebar-logo-img"
+               onerror="this.src='{{ url_for('static', filename='images/logo.png') }}'">
+          <span class="sidebar-brand-name">OZONE</span>
+        </div>
+
+        <p class="sidebar-subtext">
+          India's leading smart agriculture intelligence network. Register once to unlock AI crop protection, direct mandi trading, and instant government subsidies.
+        </p>
+
+        <div class="sidebar-benefits-list">
+          <div class="benefit-pill-item">
+            <span class="benefit-icon">🔒</span>
+            <div>
+              <strong>100% Secure &amp; Aadhaar Verified</strong><br>
+              <span class="hindi-sub" style="font-size:0.74rem; opacity:0.85;">सुरक्षित एवं प्रमाणित डेटा</span>
+            </div>
+          </div>
+
+          <div class="benefit-pill-item">
+            <span class="benefit-icon">🤖</span>
+            <div>
+              <strong>AI Crop Doctor &amp; Yield Advisor</strong><br>
+              <span class="hindi-sub" style="font-size:0.74rem; opacity:0.85;">एआई फसल रोग निदान एवं सलाह</span>
+            </div>
+          </div>
+
+          <div class="benefit-pill-item">
+            <span class="benefit-icon">📈</span>
+            <div>
+              <strong>Real-Time APMC Mandi Rates</strong><br>
+              <span class="hindi-sub" style="font-size:0.74rem; opacity:0.85;">1200+ मंडियों के लाइव भाव</span>
+            </div>
+          </div>
+
+          <div class="benefit-pill-item">
+            <span class="benefit-icon">🏛️</span>
+            <div>
+              <strong>Instant PM-KISAN &amp; KCC Loan</strong><br>
+              <span class="hindi-sub" style="font-size:0.74rem; opacity:0.85;">सरकारी योजना व ऋण सहायता</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer-content">
+        <div class="sidebar-helpline-box">
+          <span>📞 24x7 Kisan Helpline / किसान सहायता केंद्र</span>
+          <span class="sidebar-helpline-num">1800-180-1551 (Toll-Free)</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT FORM PANEL -->
+    <main class="reg-form-panel">
+      
+      <header class="form-header-title-box">
+        <h1 class="form-main-heading">
+          Farmer Registration <span class="hindi-sub">/ किसान पंजीकरण</span>
+        </h1>
+        <p class="form-sub-desc">
+          Fill in your details to create your official digital farming pass.<br>
+          <span class="hindi-desc">स्मार्ट कृषि सेवाएँ और सरकारी लाभ प्राप्त करने के लिए अपनी जानकारी दर्ज करें।</span>
+        </p>
+      </header>
+
+      {% if error %}
+      <div class="alert-box error">
+        <span>⚠️</span>
+        <div>{{ error }}</div>
+      </div>
+      {% endif %}
+
+      {% if success %}
+      <div class="alert-box success">
+        <span>🎉</span>
+        <div>
+          <strong>पंजीकरण सफल! / Registration Successful!</strong><br>
+          Welcome to OZONE, {{ farmer_name }}! Redirecting you to your Kisan Dashboard...
+          <div style="margin-top: 8px;">
+            <a href="{{ url_for('home') }}" style="background: #16a34a; color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 0.82rem; font-weight: 700; display: inline-block;">Go to Home Dashboard →</a>
+          </div>
+        </div>
+      </div>
+      <script>
+        setTimeout(function() {
+          window.location.href = "{{ url_for('home') }}";
+        }, 1200);
+      </script>
+      {% endif %}
+
+      <form action="{{ url_for('register') }}" method="POST" autocomplete="off" id="fullRegisterForm">
+
+        <!-- ================= SECTION 1: Personal Information ================= -->
+        <section class="form-step-section">
+          <div class="section-legend-header">
+            <span class="legend-badge-icon">1</span>
+            <span>Personal Information <span class="hindi-sub">/ व्यक्तिगत जानकारी</span></span>
+          </div>
+
+          <div class="grid-4-fields">
+            <div class="field-group">
+              <label class="field-label">Full Name <span class="hindi-label">/ पूरा नाम</span> <span class="req-star">*</span></label>
+              <input type="text" name="fullName" class="input-control" placeholder="e.g. Ramesh Kumar / पूरा नाम" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Mobile Number <span class="hindi-label">/ मोबाइल नंबर</span> <span class="req-star">*</span></label>
+              <input type="tel" name="mobile" class="input-control" placeholder="10-digit number / 10 अंकों का नंबर" pattern="[0-9]{10}" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Email Address <span class="hindi-label">/ ईमेल आईडी</span> <span class="req-star">*</span></label>
+              <input type="email" name="email" class="input-control" placeholder="e.g. farmer@kisan.in" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Password <span class="hindi-label">/ पासवर्ड</span> <span class="req-star">*</span></label>
+              <div class="input-with-toggle">
+                <input type="password" name="password" id="regPassword" class="input-control" placeholder="Create password / पासवर्ड बनाएँ" required>
+                <button type="button" class="eye-toggle-btn" onclick="togglePasswordVisibility('regPassword')" title="Show/Hide Password">
+                  👁️
+                </button>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Aadhaar Number <span class="hindi-label">/ आधार नंबर</span> <span class="req-star">*</span></label>
+              <input type="text" name="aadhar" class="input-control" placeholder="12-digit Aadhaar / 12 अंक" pattern="[0-9]{12}" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Date of Birth <span class="hindi-label">/ जन्म तिथि</span> <span class="req-star">*</span></label>
+              <input type="text" name="dob" class="input-control" placeholder="DD/MM/YYYY" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Gender <span class="hindi-label">/ लिंग</span> <span class="req-star">*</span></label>
+              <select name="gender" class="select-control" required>
+                <option value="">Select Gender / लिंग चुनें</option>
+                <option value="Male / पुरुष">Male / पुरुष</option>
+                <option value="Female / महिला">Female / महिला</option>
+                <option value="Other / अन्य">Other / अन्य</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Marital Status <span class="hindi-label">/ वैवाहिक स्थिति</span></label>
+              <select name="maritalStatus" class="select-control">
+                <option value="">Select Status / स्थिति चुनें</option>
+                <option value="Married / विवाहित">Married / विवाहित</option>
+                <option value="Single / अविवाहित">Single / अविवाहित</option>
+              </select>
+            </div>
+
+            <div class="field-group span-2">
+              <label class="field-label">Full Address <span class="hindi-label">/ पूरा पता</span> <span class="req-star">*</span></label>
+              <input type="text" name="address" class="input-control" placeholder="House/Village, Post Office, Tehsil / गाँव, डाकघर, तहसील" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">State <span class="hindi-label">/ राज्य</span> <span class="req-star">*</span></label>
+              <select name="state" class="select-control" required>
+                <option value="">Select State / राज्य चुनें</option>
+                <option value="Punjab / पंजाब">Punjab / पंजाब</option>
+                <option value="Haryana / हरियाणा">Haryana / हरियाणा</option>
+                <option value="Rajasthan / राजस्थान">Rajasthan / राजस्थान</option>
+                <option value="Uttar Pradesh / उत्तर प्रदेश">Uttar Pradesh / उत्तर प्रदेश</option>
+                <option value="Madhya Pradesh / मध्य प्रदेश">Madhya Pradesh / मध्य प्रदेश</option>
+                <option value="Maharashtra / महाराष्ट्र">Maharashtra / महाराष्ट्र</option>
+                <option value="Gujarat / गुजरात">Gujarat / गुजरात</option>
+                <option value="Bihar / बिहार">Bihar / बिहार</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">District &amp; Pincode <span class="hindi-label">/ जिला व पिनकोड</span> <span class="req-star">*</span></label>
+              <div style="display:flex; gap:8px;">
+                <input type="text" name="district" class="input-control" placeholder="District / जिला" style="flex:1.2;" required>
+                <input type="text" name="pincode" class="input-control" placeholder="Pincode" style="flex:0.8;" pattern="[0-9]{6}" required>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= SECTION 2: Farm Information ================= -->
+        <section class="form-step-section">
+          <div class="section-legend-header">
+            <span class="legend-badge-icon">2</span>
+            <span>Farm &amp; Agriculture Details <span class="hindi-sub">/ कृषि जानकारी</span></span>
+          </div>
+
+          <div class="grid-4-fields">
+            <div class="field-group">
+              <label class="field-label">Land Ownership <span class="hindi-label">/ भूमि स्वामित्व</span> <span class="req-star">*</span></label>
+              <select name="landOwnership" class="select-control" required>
+                <option value="">Select Ownership / स्वामित्व</option>
+                <option value="Owned / स्वयं का">Owned / स्वयं का</option>
+                <option value="Leased / पट्टे पर">Leased / पट्टे पर</option>
+                <option value="Sharecropper / बटाईदार">Sharecropper / बटाईदार</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Total Land (Acres) <span class="hindi-label">/ कुल भूमि (एकड़)</span> <span class="req-star">*</span></label>
+              <input type="number" step="0.1" name="totalLand" class="input-control" placeholder="e.g. 4.5" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Irrigation Source <span class="hindi-label">/ सिंचाई स्रोत</span></label>
+              <select name="irrigationSource" class="select-control">
+                <option value="Canal / नहर">Canal / नहर</option>
+                <option value="Borewell / ट्यूबवेल">Borewell / ट्यूबवेल</option>
+                <option value="Rainfed / वर्षा आधारित">Rainfed / वर्षा आधारित</option>
+                <option value="Drip & Sprinkler / ड्रिप स्प्रिंकलर">Drip &amp; Sprinkler / ड्रिप</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Soil Type <span class="hindi-label">/ मिट्टी का प्रकार</span></label>
+              <select name="soilType" class="select-control">
+                <option value="Alluvial / जलोढ़">Alluvial / जलोढ़</option>
+                <option value="Black Soil / काली मिट्टी">Black Soil / काली मिट्टी</option>
+                <option value="Red & Yellow / लाल मिट्टी">Red &amp; Yellow / लाल मिट्टी</option>
+                <option value="Sandy Loam / दोमट रेतीली">Sandy Loam / दोमट रेतीली</option>
+              </select>
+            </div>
+
+            <div class="field-group span-2">
+              <label class="field-label">Main Crops Grown <span class="hindi-label">/ मुख्य फसलें</span> <span class="req-star">*</span></label>
+              <input type="text" name="mainCrops" class="input-control" placeholder="e.g., Wheat, Basmati Rice, Mustard, Cotton / गेहूँ, धान, सरसों" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Farming Experience <span class="hindi-label">/ अनुभव (वर्ष)</span> <span class="req-star">*</span></label>
+              <input type="number" name="experience" class="input-control" placeholder="Years / वर्ष" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Annual Income (₹) <span class="hindi-label">/ वार्षिक आय</span> <span class="req-star">*</span></label>
+              <select name="annualIncome" class="select-control" required>
+                <option value="Below ₹1,00,000">&lt; ₹1,00,000</option>
+                <option value="₹1,00,000 - ₹3,00,000">₹1,00,000 - ₹3,00,000</option>
+                <option value="₹3,00,000 - ₹5,00,000" selected>₹3,00,000 - ₹5,00,000</option>
+                <option value="Above ₹5,00,000">&gt; ₹5,00,000</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= SECTION 3: Financial & Credit Information ================= -->
+        <section class="form-step-section">
+          <div class="section-legend-header">
+            <span class="legend-badge-icon">3</span>
+            <span>Financial &amp; Banking Details <span class="hindi-sub">/ वित्तीय जानकारी</span></span>
+          </div>
+
+          <div class="grid-4-fields">
+            <div class="field-group">
+              <label class="field-label">Active Crop Loan? <span class="hindi-label">/ कृषि ऋण है?</span> <span class="req-star">*</span></label>
+              <select name="hasLoan" class="select-control" required>
+                <option value="No / नहीं">No / नहीं</option>
+                <option value="Yes / हाँ">Yes / हाँ</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Loan Amount (if any) <span class="hindi-label">/ ऋण राशि (₹)</span></label>
+              <input type="text" name="loanAmount" class="input-control" placeholder="e.g. ₹1,50,000">
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Primary Bank Name <span class="hindi-label">/ बैंक का नाम</span></label>
+              <input type="text" name="bankName" class="input-control" placeholder="e.g. State Bank of India / एसबीआई">
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Have Kisan Credit Card? <span class="hindi-label">/ केसीसी कार्ड?</span></label>
+              <select name="hasKcc" class="select-control">
+                <option value="Yes / हाँ">Yes / हाँ (Already Have KCC)</option>
+                <option value="No / नहीं">No / नहीं (Need to Apply)</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Monthly Farm Revenue (₹) <span class="hindi-label">/ मासिक आय</span> <span class="req-star">*</span></label>
+              <input type="text" name="monthlyIncome" class="input-control" placeholder="e.g. ₹35,000" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Monthly EMI Outflow (₹) <span class="hindi-label">/ ईएमआई</span></label>
+              <input type="text" name="existingEmi" class="input-control" placeholder="e.g. ₹0">
+            </div>
+
+            <div class="field-group span-2">
+              <label class="field-label">Crop Insurance (PMFBY)? <span class="hindi-label">/ फसल बीमा है?</span> <span class="req-star">*</span></label>
+              <select name="hasInsurance" class="select-control" required>
+                <option value="Yes / हाँ">Yes / हाँ (Insured under PMFBY)</option>
+                <option value="No / नहीं">No / नहीं (Need Crop Insurance Cover)</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= SECTION 4: Additional Information ================= -->
+        <section class="form-step-section">
+          <div class="section-legend-header">
+            <span class="legend-badge-icon">4</span>
+            <span>Category &amp; Advisory Preferences <span class="hindi-sub">/ अतिरिक्त प्राथमिकताएँ</span></span>
+          </div>
+
+          <div class="grid-4-fields">
+            <div class="field-group">
+              <label class="field-label">Farmer Category <span class="hindi-label">/ किसान श्रेणी</span> <span class="req-star">*</span></label>
+              <select name="farmerCategory" class="select-control" required>
+                <option value="Small / लघु (< 5 Acres)">Small / लघु (&lt; 5 Acres)</option>
+                <option value="Marginal / सीमांत (< 2.5 Acres)">Marginal / सीमांत (&lt; 2.5 Acres)</option>
+                <option value="Medium / मध्यम (5-10 Acres)">Medium / मध्यम (5-10 Acres)</option>
+                <option value="Large / बड़ा (> 10 Acres)">Large / बड़ा (&gt; 10 Acres)</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">FPO / Cooperative Member? <span class="hindi-label">/ एफपीओ सदस्य?</span></label>
+              <select name="isFpoMember" class="select-control">
+                <option value="Yes / हाँ">Yes / हाँ</option>
+                <option value="No / नहीं">No / नहीं</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">KVK Training Attended? <span class="hindi-label">/ प्रशिक्षण प्राप्त?</span></label>
+              <select name="attendedTraining" class="select-control">
+                <option value="Yes / हाँ">Yes / हाँ</option>
+                <option value="No / नहीं">No / नहीं</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Advisory Language <span class="hindi-label">/ भाषा</span> <span class="req-star">*</span></label>
+              <select name="prefLanguage" class="select-control" required>
+                <option value="Hindi / हिंदी">Hindi / हिंदी</option>
+                <option value="English / अंग्रेज़ी">English / अंग्रेज़ी</option>
+                <option value="Punjabi / ਪੰਜਾਬੀ">Punjabi / ਪੰਜਾਬੀ</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- Submit & Terms Footer -->
+        <div class="form-footer-actions">
+          <label class="terms-label">
+            <input type="checkbox" required checked>
+            <span>
+              I certify that all details submitted are accurate under the National Farmer Database standards.<br>
+              <span class="hindi-desc">मैं प्रमाणित करता/करती हूँ कि दी गई सभी जानकारियाँ सही हैं।</span>
+            </span>
+          </label>
+
+          <button type="submit" class="btn-register-submit">
+            <span>Register Kisan Profile / पंजीकरण करें</span>
+            <span>→</span>
+          </button>
+        </div>
+
+        <div class="already-account-row">
+          Already registered on OZONE? / क्या आपका खाता पहले से है? 
+          <a href="{{ url_for('index') }}">Login to Dashboard / यहाँ लॉगिन करें →</a>
+        </div>
+
+      </form>
+    </main>
+
+  </div>
+
+  <script>
+    function togglePasswordVisibility(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.type = el.type === 'password' ? 'text' : 'password';
+      }
+    }
+  </script>
+</body>
+</html>
