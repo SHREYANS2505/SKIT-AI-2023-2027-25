@@ -301,6 +301,11 @@
               <label class="field-label">Loan Amount (if any) <span class="hindi-label">/ ऋण राशि (₹)</span></label>
               <input type="text" name="loanAmount" class="input-control" placeholder="e.g. ₹1,50,000">
             </div>
+            <!-- Loan Due Date field (Feature: Loan Due Tracker - Contributed by Shrim) -->
+            <div class="field-group">
+              <label class="field-label">Next EMI Due Date <span class="hindi-label">/ ऋण देय तिथि</span></label>
+              <input type="date" name="loanDueDate" class="input-control" id="loanDueDate">
+            </div>
 
             <div class="field-group">
               <label class="field-label">Primary Bank Name <span class="hindi-label">/ बैंक का नाम</span></label>
@@ -325,7 +330,7 @@
               <input type="text" name="existingEmi" class="input-control" placeholder="e.g. ₹0">
             </div>
 
-            <div class="field-group span-2">
+            <div class="field-group">
               <label class="field-label">Crop Insurance (PMFBY)? <span class="hindi-label">/ फसल बीमा है?</span> <span class="req-star">*</span></label>
               <select name="hasInsurance" class="select-control" required>
                 <option value="Yes / हाँ">Yes / हाँ (Insured under PMFBY)</option>

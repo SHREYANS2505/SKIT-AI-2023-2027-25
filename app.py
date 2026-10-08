@@ -3,6 +3,13 @@ import sqlite3
 from flask import Flask, render_template, jsonify, request, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 
+# Feature Modules
+from loan_tracker import (
+    get_farmer_loan_tracker_summary,
+    calculate_loan_due_days,
+    update_farmer_loan_due_date
+)
+
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = 'ozone-smart-farming-secret-key-2026'
 
@@ -49,9 +56,17 @@ def init_db():
                 is_fpo_member TEXT,
                 attended_training TEXT,
                 pref_language TEXT,
+                loan_due_date TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
+        
+        # Check and migrate existing tables if loan_due_date column is not present
+        cursor.execute("PRAGMA table_info(farmers)")
+        existing_cols = [col[1] for col in cursor.fetchall()]
+        if 'loan_due_date' not in existing_cols:
+            cursor.execute("ALTER TABLE farmers ADD COLUMN loan_due_date TEXT")
+
         
         # Seed default demo user safely
         cursor.execute('SELECT id FROM farmers WHERE LOWER(email) = ?', ('ramesh@kisan.in',))
@@ -64,7 +79,9 @@ def init_db():
                     total_land, irrigation_source, soil_type, main_crops, experience,
                     annual_income, has_loan, loan_amount, bank_name, has_kcc,
                     monthly_income, existing_emi, has_insurance, farmer_category,
-                    is_fpo_member, attended_training, pref_language
+                    is_fpo_member, attended_training, pref_language, loan_due_date
+
+
                 ) VALUES (
                     'Ramesh Kumar', '9876543210', 'ramesh@kisan.in', ?, '123456789012',
                     '15/08/1982', 'Male / पुरुष', 'Married / विवाहित', 'Village Raikot, Post Pakhowal',
@@ -72,9 +89,13 @@ def init_db():
                     4.5, 'Canal / नहर', 'Alluvial / जलोढ़', 'Wheat, Paddy, Mustard',
                     15, '₹3,00,000 - ₹5,00,000', 'No / नहीं', '', 'State Bank of India',
                     'Yes / हाँ', '₹35,000', '₹0', 'Yes / हाँ', 'Small / लघु',
-                    'Yes / हाँ', 'Yes / हाँ', 'Hindi / हिंदी'
+                    'Yes / हाँ', 'Yes / हाँ', 'Hindi / हिंदी', '2026-10-31'
                 )
             ''', (demo_password_hash,))
+        else:
+            # If demo user exists, make sure loan_due_date is set for testing
+            cursor.execute("UPDATE farmers SET loan_due_date = '2026-10-31' WHERE email = 'ramesh@kisan.in' AND (loan_due_date IS NULL OR loan_due_date = '')")
+
         conn.commit()
 
 
@@ -118,8 +139,8 @@ def register():
                         total_land, irrigation_source, soil_type, main_crops, experience,
                         annual_income, has_loan, loan_amount, bank_name, has_kcc,
                         monthly_income, existing_emi, has_insurance, farmer_category,
-                        is_fpo_member, attended_training, pref_language
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        is_fpo_member, attended_training, pref_language, loan_due_date
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     full_name,
                     mobile,
@@ -150,7 +171,8 @@ def register():
                     request.form.get('farmerCategory', ''),
                     request.form.get('isFpoMember', ''),
                     request.form.get('attendedTraining', ''),
-                    request.form.get('prefLanguage', 'hi')
+                    request.form.get('prefLanguage', 'hi'),
+                    request.form.get('loanDueDate', '')
                 ))
                 user_id = cursor.lastrowid
                 conn.commit()
@@ -235,7 +257,46 @@ def home():
             return redirect(url_for('index'))
         farmer = dict(row)
         farmer['name'] = farmer.get('full_name', session.get('user_name', 'Farmer'))
-    return render_template('home.html', user=farmer)
+      
+        # Feature: Loan Due Tracker
+        loan_tracker = get_farmer_loan_tracker_summary(farmer)
+        
+    return render_template('home.html', user=farmer, loan_tracker=loan_tracker)
+
+# =========================================================================
+# FEATURE MODULE: Loan Due Tracker 
+# =========================================================================
+@app.route('/api/loan-tracker/update', methods=['POST'])
+def api_update_loan_tracker():
+    """
+    Dedicated endpoint contributed by Shrim:
+    Allows farmer to update their next loan EMI due date directly from the dashboard
+    and immediately recalculates days remaining, status color, and ring offsets.
+    """
+    if 'user_id' not in session:
+        return jsonify({'status': 'error', 'message': 'Authentication required'}), 401
+    
+    data = request.get_json() or request.form.to_dict() or {}
+    new_due_date = data.get('dueDate', '').strip()
+    
+    if not new_due_date:
+        return jsonify({'status': 'error', 'message': 'Please provide a valid due date'}), 400
+        
+    try:
+        with get_db() as conn:
+            success = update_farmer_loan_due_date(conn, session['user_id'], new_due_date)
+            if not success:
+                return jsonify({'status': 'error', 'message': 'Failed to update due date in database'}), 500
+                
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM farmers WHERE id = ?', (session['user_id'],))
+            farmer = dict(cursor.fetchone())
+            
+        tracker_data = get_farmer_loan_tracker_summary(farmer)
+        return jsonify({'status': 'success', 'tracker': tracker_data})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

@@ -3,384 +3,768 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ user.name }} - Kisan Portal | OZONE Smart Farming</title>
+  <title>{{ user.name }} — Kisan Dashboard | OZONE Smart Farming</title>
   <meta name="description" content="Personalized smart farming dashboard for registered farmers. Monitor crop health, live mandi rates, soil moisture, and government scheme disbursements.">
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo_clean.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
 </head>
 <body>
 
-  <!-- Dashboard Top Navigation Header -->
-  <header class="dash-header">
-    <div class="dash-header-container">
-      
-      <!-- Brand Logo -->
-      <a href="{{ url_for('home') }}" class="dash-brand">
-        <img src="{{ url_for('static', filename='images/logo_clean.png') }}" 
-             alt="OZONE Logo" 
-             style="height:36px; width:auto;"
-             onerror="this.src='{{ url_for('static', filename='images/logo.png') }}'">
-        <span>OZONE</span>
-        <span class="dash-brand-tag">Kisan Dashboard</span>
-      </a>
+  <!-- ====== DASHBOARD LAYOUT ====== -->
+  <div class="dashboard-layout">
 
-      <!-- Right User Controls -->
-      <div class="dash-user-controls">
-        <div class="farmer-chip-badge">
-          <img src="{{ url_for('static', filename='images/farmer_feathered.png') }}" 
-               alt="{{ user.name }}" 
-               class="farmer-avatar-img"
-               onerror="this.src='{{ url_for('static', filename='images/farmer.png') }}'">
-          <span class="farmer-name-lbl">{{ user.name }} 🌾</span>
-        </div>
-
-        <a href="{{ url_for('index') }}" class="btn-nav-action btn-nav-outline" title="Return to Landing Page">
-          🌐 View Landing Page
+    <!-- ====== LEFT SIDEBAR ====== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <!-- Brand -->
+        <a href="{{ url_for('home') }}" class="sidebar-brand">
+          <img src="{{ url_for('static', filename='images/logo_clean.png') }}" alt="OZONE Logo" class="sidebar-logo"
+               onerror="this.src='{{ url_for('static', filename='images/logo.png') }}'">
+          <span class="sidebar-brand-text">OZONE</span>
         </a>
 
-        <a href="{{ url_for('logout') }}" class="btn-nav-action btn-logout" title="Sign out of OZONE">
-          🚪 Logout
-        </a>
-      </div>
-
-    </div>
-  </header>
-
-  <!-- Dashboard Main Content Container -->
-  <main class="dash-content-wrapper">
-
-    <!-- Welcome Hero Banner -->
-    <section class="dash-welcome-banner">
-      <div class="banner-welcome-text">
-        <h1>नमस्ते, {{ user.name }}! 🌾</h1>
-        <p>
-          Welcome to your smart farming command center. Your farm in <strong>{{ user.district or user.state or 'Punjab' }}</strong> is currently synchronized with regional APMC mandis, satellite weather telemetry, and the PM-KISAN database.
-        </p>
-      </div>
-
-      <div class="banner-quick-actions">
-        <a href="#mandiSection" class="btn-banner-action">
-          <span>📈</span> Today's Mandi Rates
-        </a>
-        <a href="#aiSection" class="btn-banner-action">
-          <span>🔬</span> AI Crop Doctor
-        </a>
-        <a href="#iotSection" class="btn-banner-action">
-          <span>📡</span> IoT Soil Health
-        </a>
-      </div>
-    </section>
-
-    <!-- Top 4 KPI Metrics -->
-    <section class="kpi-row-grid">
-      
-      <!-- KPI 1: Active Crop Cycle -->
-      <div class="kpi-metric-card">
-        <div class="kpi-card-top">
-          <div class="kpi-icon-pill">🌾</div>
-          <span class="kpi-status-tag green">Day 72 / 120</span>
-        </div>
-        <span class="kpi-card-title">PRIMARY CROP CYCLE</span>
-        <div class="kpi-card-value">{{ user.main_crops or 'Wheat (Kanak)' }}</div>
-        <div class="kpi-card-footer">
-          Flowering Stage • High chlorophyll density
-        </div>
-      </div>
-
-      <!-- KPI 2: Live Mandi Modal Rate -->
-      <div class="kpi-metric-card">
-        <div class="kpi-card-top">
-          <div class="kpi-icon-pill" style="background:rgba(2,132,199,0.12); color:#0284c7;">🛒</div>
-          <span class="kpi-status-tag green">▲ +3.4% Today</span>
-        </div>
-        <span class="kpi-card-title">MANDI MODAL BENCHMARK</span>
-        <div class="kpi-card-value">₹2,350 <span style="font-size:0.9rem; font-weight:600; color:var(--text-muted);">/ Quintal</span></div>
-        <div class="kpi-card-footer">
-          Khanna Mandi • Arrivals: 1,420 Tonnes
-        </div>
-      </div>
-
-      <!-- KPI 3: Weather & Spray Advisory -->
-      <div class="kpi-metric-card">
-        <div class="kpi-card-top">
-          <div class="kpi-icon-pill" style="background:rgba(245,158,11,0.12); color:#f59e0b;">⛅</div>
-          <span class="kpi-status-tag amber">Rain Warning</span>
-        </div>
-        <span class="kpi-card-title">HYPERLOCAL WEATHER</span>
-        <div class="kpi-card-value">28°C <span style="font-size:0.9rem; font-weight:600; color:var(--text-muted);">Partly Cloudy</span></div>
-        <div class="kpi-card-footer">
-          Rain in 36h • Postpone urea spraying
-        </div>
-      </div>
-
-      <!-- KPI 4: Government Scheme Status -->
-      <div class="kpi-metric-card">
-        <div class="kpi-card-top">
-          <div class="kpi-icon-pill" style="background:rgba(16,185,129,0.12); color:#10b981;">🏛️</div>
-          <span class="kpi-status-tag green">DBT Active</span>
-        </div>
-        <span class="kpi-card-title">PM-KISAN BENEFIT</span>
-        <div class="kpi-card-value">₹2,000 <span style="font-size:0.9rem; font-weight:600; color:var(--text-muted);">Credited</span></div>
-        <div class="kpi-card-footer">
-          Aadhaar Linked • Next installment in Dec
-        </div>
-      </div>
-
-    </section>
-
-    <!-- Main 2-Column Dashboard Grid -->
-    <div class="dash-main-grid">
-
-      <!-- LEFT COLUMN: Live Tools -->
-      <div class="dash-left-column">
-
-        <!-- Live Mandi Rates Panel -->
-        <div class="dash-panel-card" id="mandiSection">
-          <div class="panel-header-row">
-            <h2 class="panel-title">
-              <span>🛒</span> Live APMC Mandi Watchlist
-            </h2>
-            <span style="font-size:0.78rem; font-weight:700; color:var(--accent); background:rgba(22,163,74,0.1); padding:4px 10px; border-radius:9999px;">
-              ● Real-Time Feed
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+          <a href="#" class="nav-item active" data-section="dashboard">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
             </span>
-          </div>
-
-          <table class="mandi-table">
-            <thead>
-              <tr>
-                <th>Crop Variety</th>
-                <th>APMC Mandi</th>
-                <th>Min / Max (₹/Q)</th>
-                <th>Modal Price</th>
-                <th>24h Trend</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>Wheat (Sharbati / Lokwan)</strong></td>
-                <td>Khanna Mandi, Punjab</td>
-                <td>₹2,150 - ₹2,480</td>
-                <td class="rate-badge">₹2,350</td>
-                <td class="trend-up">▲ +3.4%</td>
-              </tr>
-              <tr>
-                <td><strong>Basmati Rice (Pusa 1121)</strong></td>
-                <td>Karnal Mandi, Haryana</td>
-                <td>₹3,800 - ₹4,450</td>
-                <td class="rate-badge">₹4,250</td>
-                <td class="trend-up">▲ +2.1%</td>
-              </tr>
-              <tr>
-                <td><strong>Mustard (Sarson - Black)</strong></td>
-                <td>Kota Mandi, Rajasthan</td>
-                <td>₹5,100 - ₹5,680</td>
-                <td class="rate-badge">₹5,420</td>
-                <td class="trend-up">▲ +1.8%</td>
-              </tr>
-              <tr>
-                <td><strong>Cotton (Medium Staple)</strong></td>
-                <td>Rajkot Mandi, Gujarat</td>
-                <td>₹7,100 - ₹7,850</td>
-                <td class="rate-badge">₹7,520</td>
-                <td class="trend-down">▼ -0.5%</td>
-              </tr>
-              <tr>
-                <td><strong>Soybean (Yellow Seed)</strong></td>
-                <td>Indore Mandi, MP</td>
-                <td>₹4,200 - ₹4,750</td>
-                <td class="rate-badge">₹4,560</td>
-                <td class="trend-up">▲ +4.2%</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div style="margin-top:16px; padding:12px 16px; background:#f0fdf4; border-radius:var(--radius-sm); border-left:4px solid var(--accent); font-size:0.84rem; color:#166534;">
-            <strong>Mandi Advisory:</strong> Wheat prices are trending upwards due to festive export procurement. Target next Tuesday for peak liquidation.
-          </div>
-        </div>
-
-        <!-- AI Crop Health & Disease Diagnostic Panel -->
-        <div class="dash-panel-card" id="aiSection">
-          <div class="panel-header-row">
-            <h2 class="panel-title">
-              <span>🔬</span> AI Plant Health &amp; Crop Doctor
-            </h2>
-            <span class="panel-action-link" style="cursor:pointer;" onclick="alert('Camera feed ready! Hold leaf 15cm from camera.');">
-              + New Leaf Scan
+            <span>Dashboard</span>
+          </a>
+          <a href="#" class="nav-item" data-section="risk">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </span>
-          </div>
+            <span>Risk Score</span>
+          </a>
+          <a href="#mandiChart" class="nav-item" data-section="mandi">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+            </span>
+            <span>Mandi Prices</span>
+          </a>
+          <a href="#" class="nav-item" data-section="weather">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+            </span>
+            <span>Weather</span>
+          </a>
+          <a href="#iotPanel" class="nav-item" data-section="iot">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.12 19a7 7 0 0 1 0-14"/><path d="M18.88 5a7 7 0 0 1 0 14"/><path d="M8.46 16.54a4 4 0 0 1 0-9.08"/><path d="M15.54 7.46a4 4 0 0 1 0 9.08"/><circle cx="12" cy="12" r="1"/></svg>
+            </span>
+            <span>IoT Monitoring</span>
+          </a>
 
-          <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
-            <img src="{{ url_for('static', filename='images/healthy_wheat.jpg') }}" 
-                 alt="Current Wheat Crop Sample" 
-                 style="width:110px; height:110px; border-radius:var(--radius-sm); object-fit:cover; border:2px solid var(--accent);">
-            
-            <div style="flex:1; min-width:240px;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <h3 style="font-size:1.05rem; font-weight:800; color:var(--text-main);">Primary Field Health: 96% Optimal</h3>
-                <span style="font-size:0.75rem; background:rgba(22,163,74,0.12); color:var(--accent); font-weight:700; padding:2px 8px; border-radius:9999px;">No Fungus</span>
-              </div>
-              <p style="font-size:0.84rem; color:var(--text-muted); line-height:1.5; margin-bottom:10px;">
-                Computer vision scan detected zero signs of early blight or stripe rust pustules. Leaf chlorophyll absorption is in the top 5th percentile for regional crops.
-              </p>
-              <div style="font-size:0.78rem; font-weight:600; color:var(--primary); background:#f1f5f2; padding:6px 12px; border-radius:var(--radius-sm);">
-                Recommended Action: Continue current drip irrigation interval; spray neem oil preventive if morning dew exceeds 80%.
-              </div>
-            </div>
-          </div>
-        </div>
+          <div class="nav-divider"></div>
 
-        <!-- IoT Soil & Automated Irrigation Monitor -->
-        <div class="dash-panel-card" id="iotSection">
-          <div class="panel-header-row">
-            <h2 class="panel-title">
-              <span>📡</span> IoT Soil Moisture &amp; Pump Telemetry
-            </h2>
-            <span style="font-size:0.76rem; color:var(--text-muted);">Sensor Node #04 • Battery 98%</span>
-          </div>
-
-          <div class="iot-sensor-grid">
-            <div class="sensor-box">
-              <span style="font-size:1.5rem;">💧</span>
-              <div class="sensor-val">24%</div>
-              <div class="sensor-lbl">Soil Moisture (Depth 15cm)</div>
-              <span style="font-size:0.7rem; color:var(--accent); font-weight:700;">Optimal Moisture</span>
-            </div>
-
-            <div class="sensor-box">
-              <span style="font-size:1.5rem;">🧪</span>
-              <div class="sensor-val">6.8 pH</div>
-              <div class="sensor-lbl">Soil Acidity / Alkaline</div>
-              <span style="font-size:0.7rem; color:var(--accent); font-weight:700;">Neutral Fertile</span>
-            </div>
-
-            <div class="sensor-box">
-              <span style="font-size:1.5rem;">☀️</span>
-              <div class="sensor-val">5 HP</div>
-              <div class="sensor-lbl">PM-Kusum Solar Pump</div>
-              <span style="font-size:0.7rem; color:#0284c7; font-weight:700;">Pumping at 42 PSI</span>
-            </div>
-          </div>
-        </div>
-
+          <a href="#" class="nav-item" data-section="schemes">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-4h6v4"/></svg>
+            </span>
+            <span>Schemes</span>
+          </a>
+          <a href="#" class="nav-item" data-section="loan">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            </span>
+            <span>Loan & Finance</span>
+          </a>
+          <a href="#loanTracker" class="nav-item" data-section="loandue">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </span>
+            <span>Loan Due Tracker</span>
+          </a>
+          <a href="#alertsPanel" class="nav-item" data-section="alerts">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            </span>
+            <span>Alerts & Notifications</span>
+          </a>
+          <a href="#" class="nav-item" data-section="profile">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+            <span>Profile</span>
+          </a>
+          <a href="#" class="nav-item" data-section="support">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </span>
+            <span>Support</span>
+          </a>
+        </nav>
       </div>
 
-      <!-- RIGHT COLUMN: Farmer Profile & Tasks -->
-      <div class="dash-right-column">
+      <!-- Sidebar Bottom: Help Card -->
+      <div class="sidebar-help-card">
+        <div class="help-icon">🌿</div>
+        <h4>Need Help?</h4>
+        <p>Contact our support team for assistance.</p>
+        <a href="#" class="help-btn">Contact Support</a>
+      </div>
+    </aside>
 
-        <!-- Farmer Digital Profile Card -->
-        <div class="farmer-profile-card">
-          <div class="profile-avatar-row">
-            <img src="{{ url_for('static', filename='images/farmer_feathered.png') }}" 
-                 alt="{{ user.name }}" 
-                 class="profile-avatar-big"
+    <!-- ====== MAIN CONTENT AREA ====== -->
+    <div class="main-area">
+
+      <!-- ====== TOP HEADER BAR ====== -->
+      <header class="top-header">
+        <div class="header-left">
+          <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle sidebar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div class="header-title-group">
+            <h1 class="header-title">Dashboard</h1>
+            <p class="header-subtitle">Welcome back, {{ user.name }} 🌾</p>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Weather Chip -->
+          <div class="header-chip weather-chip">
+            <span class="chip-emoji">🌤️</span>
+            <div class="chip-text">
+              <strong>28°C</strong>
+              <span>Partly Cloudy</span>
+            </div>
+          </div>
+
+          <!-- Location Chip -->
+          <div class="header-chip location-chip">
+            <span class="chip-detail">{{ user.district or 'Ludhiana' }}, {{ user.state or 'Punjab' }}</span>
+            <span class="chip-sub">{{ "08 Oct 2026" }}</span>
+          </div>
+
+          <!-- Notification Bell -->
+          <button class="notif-btn" title="Notifications">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="notif-badge">3</span>
+          </button>
+
+          <!-- User Avatar -->
+          <div class="header-user">
+            <img src="{{ url_for('static', filename='images/farmer_feathered.png') }}" alt="{{ user.name }}" class="header-avatar"
                  onerror="this.src='{{ url_for('static', filename='images/farmer.png') }}'">
-            <div class="profile-info">
-              <h3>{{ user.name }}</h3>
-              <p>Registered Farmer ID: <strong>OZONE-2026-{{ user.id or '8921' }}</strong></p>
-              <span style="font-size:0.72rem; background:rgba(22,163,74,0.12); color:var(--accent); font-weight:700; padding:2px 8px; border-radius:9999px;">
-                Verified Kisan
+            <span class="header-user-name">{{ user.name }}</span>
+            <a href="{{ url_for('logout') }}" class="logout-link" title="Sign out">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <!-- ====== SCROLLABLE DASHBOARD CONTENT ====== -->
+      <main class="dashboard-content">
+
+        <!-- ===== ROW 1: 5 KPI CARDS ===== -->
+        <section class="kpi-row">
+
+          <!-- KPI 1: Financial Risk Score -->
+          <div class="kpi-card kpi-risk">
+            <div class="kpi-header">
+              <h3>Financial Risk Score</h3>
+              <button class="info-btn" title="How is this calculated?">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              </button>
+            </div>
+            <div class="risk-gauge-wrap">
+              <svg class="risk-gauge" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#e8f5e9" stroke-width="10"/>
+                <circle cx="60" cy="60" r="52" fill="none" stroke="url(#riskGrad)" stroke-width="10"
+                        stroke-dasharray="326.7" stroke-dashoffset="91.5"
+                        stroke-linecap="round" transform="rotate(-90 60 60)"/>
+                <defs>
+                  <linearGradient id="riskGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#22c55e"/>
+                    <stop offset="60%" stop-color="#f59e0b"/>
+                    <stop offset="100%" stop-color="#ef4444"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="risk-value-overlay">
+                <span class="risk-number">72</span>
+                <span class="risk-total">/100</span>
+              </div>
+            </div>
+            <span class="risk-label moderate">Moderate Risk</span>
+            <p class="kpi-footer-text">Last Updated: 05 Oct 2026</p>
+          </div>
+
+          <!-- KPI 2: Crop Price Trend -->
+          <div class="kpi-card kpi-price">
+            <div class="kpi-header">
+              <h3>Crop Price Trend</h3>
+              <button class="info-btn" title="Price forecast details">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              </button>
+            </div>
+            <div class="price-value-row">
+              <span class="price-big">₹2,185</span>
+              <span class="price-unit">/ Quintal</span>
+            </div>
+            <p class="price-crop">{{ user.main_crops.split(',')[0] if user.main_crops else 'Wheat' }} (Expected)</p>
+            <div class="price-trend-badge up">
+              <svg viewBox="0 0 12 12" width="12" height="12"><path d="M6 2 L10 8 L2 8 Z" fill="currentColor"/></svg>
+              6.4%
+            </div>
+            <p class="kpi-footer-text">14 Days Forecast</p>
+          </div>
+
+          <!-- KPI 3: Weather Alert -->
+          <div class="kpi-card kpi-weather">
+            <div class="kpi-header">
+              <h3>Weather Alert</h3>
+              <button class="info-btn" title="Weather details">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              </button>
+            </div>
+            <div class="weather-alert-icon">🌧️</div>
+            <span class="weather-alert-title">Rain Alert</span>
+            <p class="weather-alert-desc">Moderate rainfall expected tomorrow</p>
+            <a href="#" class="kpi-action-btn green">View Details</a>
+          </div>
+
+          <!-- KPI 4: Eligible Schemes -->
+          <div class="kpi-card kpi-schemes">
+            <div class="kpi-header">
+              <h3>Eligible Schemes</h3>
+              <button class="info-btn" title="Scheme details">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              </button>
+            </div>
+            <div class="schemes-icon">🏛️</div>
+            <span class="schemes-count">6</span>
+            <p class="schemes-label">Schemes Available</p>
+            <a href="#" class="kpi-action-btn outline">View Schemes</a>
+          </div>
+
+          <!-- KPI 5: Active Loan -->
+          <div class="kpi-card kpi-loan">
+            <div class="kpi-header">
+              <h3>Active Loan</h3>
+              <button class="info-btn" title="Loan details">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              </button>
+            </div>
+            <span class="loan-amount">{{ loan_tracker.loan_amount if loan_tracker else '₹1,20,000' }}</span>
+            <p class="loan-label">Outstanding • {{ loan_tracker.bank_name if loan_tracker else 'SBI' }}</p>
+            <a href="#loanTracker" class="kpi-action-btn outline">View Loan Tracker</a>
+          </div>
+
+        </section>
+
+        <!-- ===== ROW 2: Chart + IoT + Loan Tracker ===== -->
+        <section class="mid-row">
+
+          <!-- Mandi Price Forecast Chart -->
+          <div class="panel-card chart-panel" id="mandiChart">
+            <div class="panel-head">
+              <div class="panel-head-left">
+                <span class="panel-icon">📈</span>
+                <h2>Mandi Price Forecast (Wheat)</h2>
+              </div>
+              <select class="panel-select" id="cropSelect">
+                <option>Wheat</option>
+                <option>Rice</option>
+                <option>Mustard</option>
+                <option>Cotton</option>
+              </select>
+            </div>
+
+            <div class="chart-container" id="chartContainer">
+              <canvas id="priceChart"></canvas>
+            </div>
+
+            <div class="chart-recommendation">
+              <span class="rec-label">Recommendation:</span>
+              <span class="rec-badge hold">Hold</span>
+              <span class="rec-text">Prices may increase in coming days.</span>
+            </div>
+          </div>
+
+          <!-- IoT Field Monitoring -->
+          <div class="panel-card iot-panel" id="iotPanel">
+            <div class="panel-head">
+              <div class="panel-head-left">
+                <span class="panel-icon">📡</span>
+                <h2>IoT Field Monitoring</h2>
+              </div>
+              <span class="live-badge">
+                <span class="live-dot"></span>Live
               </span>
             </div>
-          </div>
 
-          <div class="profile-kv-list">
-            <div class="profile-kv-item">
-              <span class="kv-key">Email ID</span>
-              <span class="kv-val">{{ user.email }}</span>
+            <div class="iot-grid">
+              <div class="iot-item">
+                <span class="iot-emoji">💧</span>
+                <div class="iot-data">
+                  <span class="iot-val">42%</span>
+                  <span class="iot-label">Soil Moisture</span>
+                  <span class="iot-status moderate">Moderate</span>
+                </div>
+              </div>
+              <div class="iot-item">
+                <span class="iot-emoji">🌡️</span>
+                <div class="iot-data">
+                  <span class="iot-val">32°C</span>
+                  <span class="iot-label">Temperature</span>
+                  <span class="iot-status normal">Normal</span>
+                </div>
+              </div>
+              <div class="iot-item">
+                <span class="iot-emoji">💨</span>
+                <div class="iot-data">
+                  <span class="iot-val">58%</span>
+                  <span class="iot-label">Humidity</span>
+                  <span class="iot-status normal">Normal</span>
+                </div>
+              </div>
+              <div class="iot-item">
+                <span class="iot-emoji">🧪</span>
+                <div class="iot-data">
+                  <span class="iot-val">6.8</span>
+                  <span class="iot-label">Soil pH</span>
+                  <span class="iot-status good">Good</span>
+                </div>
+              </div>
+              <div class="iot-item npk-item">
+                <span class="iot-emoji">🧬</span>
+                <div class="iot-data">
+                  <span class="iot-label" style="margin-bottom:4px;">NPK Level</span>
+                  <div class="npk-values">
+                    <span>N: <strong>45</strong></span>
+                    <span>P: <strong>32</strong></span>
+                    <span>K: <strong>28</strong></span>
+                  </div>
+                  <span class="iot-status moderate">Moderate</span>
+                </div>
+              </div>
             </div>
-            <div class="profile-kv-item">
-              <span class="kv-key">Mobile</span>
-              <span class="kv-val">{{ user.mobile or '9876543210' }}</span>
-            </div>
-            <div class="profile-kv-item">
-              <span class="kv-key">Landholding</span>
-              <span class="kv-val">{{ user.total_land or '4.5' }} Acres ({{ user.land_ownership or 'Owned' }})</span>
-            </div>
-            <div class="profile-kv-item">
-              <span class="kv-key">Location</span>
-              <span class="kv-val">{{ user.district or 'Ludhiana' }}, {{ user.state or 'Punjab' }}</span>
-            </div>
-            <div class="profile-kv-item">
-              <span class="kv-key">Soil Type</span>
-              <span class="kv-val">{{ user.soil_type or 'Alluvial / जलोढ़' }}</span>
-            </div>
-            <div class="profile-kv-item">
-              <span class="kv-key">KCC Credit Card</span>
-              <span class="kv-val" style="color:var(--accent);">Active (@ 4% Interest)</span>
-            </div>
-            <div class="profile-kv-item">
-              <span class="kv-key">Preferred Language</span>
-              <span class="kv-val">{{ user.pref_language or 'Hindi / हिंदी' }}</span>
-            </div>
-          </div>
-        </div>
 
-        <!-- Weekly Farming Checklist -->
-        <div class="dash-panel-card">
-          <div class="panel-header-row">
-            <h2 class="panel-title">
-              <span>📋</span> Weekly Agro-Tasks
-            </h2>
-            <span style="font-size:0.76rem; color:var(--text-muted);">Week 14</span>
-          </div>
-
-          <div class="checklist-item">
-            <input type="checkbox" checked class="checklist-checkbox" id="task1">
-            <div>
-              <label for="task1" class="checklist-title">Scout field for Yellow Rust</label>
-              <div class="checklist-desc">Completed yesterday • Leaves clean</div>
-            </div>
-          </div>
-
-          <div class="checklist-item">
-            <input type="checkbox" class="checklist-checkbox" id="task2">
-            <div>
-              <label for="task2" class="checklist-title">Drainage Inspection</label>
-              <div class="checklist-desc">Prepare field borders before tomorrow's rain</div>
+            <div class="iot-footer">
+              <span class="iot-timestamp">Last Updated: 08 Oct 2026 10:30 AM</span>
+              <a href="#" class="view-all-link">View All Sensors →</a>
             </div>
           </div>
 
-          <div class="checklist-item">
-            <input type="checkbox" class="checklist-checkbox" id="task3">
-            <div>
-              <label for="task3" class="checklist-title">Postpone Urea Spraying</label>
-              <div class="checklist-desc">Wait for clear skies on Sunday morning</div>
+          <!-- Loan Due Tracker (Feature: Loan Due Tracker - Contributed by Shrim) -->
+          <div class="panel-card loan-tracker-panel" id="loanTracker">
+            <div class="panel-head">
+              <div class="panel-head-left">
+                <h2>Loan Due Tracker</h2>
+              </div>
+              <button class="loan-date-edit-btn" id="openDueDateModalBtn" title="Update Due Date">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                <span>Change</span>
+              </button>
+            </div>
+
+            <div class="loan-due-info">
+              <p class="due-label">Next EMI Due On</p>
+              <p class="due-date" id="trackerDueDateDisplay">📅 {{ loan_tracker.formatted_due_date if loan_tracker else '31 Oct 2026' }}</p>
+            </div>
+
+            <div class="countdown-ring-wrap">
+              <svg class="countdown-ring" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="#e8f5e9" stroke-width="8"/>
+                <circle id="trackerRingProgress" cx="60" cy="60" r="50" fill="none" 
+                        stroke="{{ loan_tracker.status_color if loan_tracker else '#16a34a' }}" stroke-width="8"
+                        stroke-dasharray="314.16" stroke-dashoffset="{{ loan_tracker.stroke_dashoffset if loan_tracker else '157' }}"
+                        stroke-linecap="round" transform="rotate(-90 60 60)"/>
+              </svg>
+              <div class="countdown-center">
+                <span class="countdown-number" id="trackerDaysNumber" style="color: {{ loan_tracker.status_color if loan_tracker else 'var(--accent)' }}">{{ loan_tracker.days_display if loan_tracker else '15' }}</span>
+                <span class="countdown-label" id="trackerDaysLabel">{{ loan_tracker.label_text if loan_tracker else 'Days Left' }}</span>
+              </div>
+            </div>
+
+            <div class="emi-reminder-note" id="trackerReminderBox" style="border-left: 3px solid {{ loan_tracker.status_color if loan_tracker else '#16a34a' }};">
+              <svg id="trackerReminderIcon" viewBox="0 0 24 24" fill="none" stroke="{{ loan_tracker.status_color if loan_tracker else '#16a34a' }}" stroke-width="2" width="16" height="16"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span id="trackerReminderText">{{ loan_tracker.reminder_message if loan_tracker else 'EMI Reminder will be sent 15 days before due date' }}</span>
             </div>
           </div>
 
-          <div class="checklist-item">
-            <input type="checkbox" class="checklist-checkbox" id="task4">
-            <div>
-              <label for="task4" class="checklist-title">Collect Soil Health Card</label>
-              <div class="checklist-desc">Available at block agricultural office</div>
+        </section>
+
+        <!-- ===== ROW 3: Actions + Alerts + Quick Access ===== -->
+        <section class="bottom-row">
+
+          <!-- Recommended Actions -->
+          <div class="panel-card actions-panel">
+            <h2 class="bottom-panel-title">Recommended Actions</h2>
+
+            <a href="#" class="action-row">
+              <span class="action-icon irrigation">💧</span>
+              <div class="action-text">
+                <strong>Irrigation Advisory</strong>
+                <p>Soil moisture is moderate. Irrigation required in 2-3 days.</p>
+              </div>
+              <span class="action-arrow">›</span>
+            </a>
+
+            <a href="#" class="action-row">
+              <span class="action-icon market">📈</span>
+              <div class="action-text">
+                <strong>Market Recommendation</strong>
+                <p>Hold your crop. Price may increase by 6-8%.</p>
+              </div>
+              <span class="action-arrow">›</span>
+            </a>
+
+            <a href="#" class="action-row">
+              <span class="action-icon insurance">✅</span>
+              <div class="action-text">
+                <strong>Insurance Suggestion</strong>
+                <p>You are eligible for PM Fasal Bima Yojana.</p>
+              </div>
+              <span class="action-arrow">›</span>
+            </a>
+          </div>
+
+          <!-- Recent Alerts -->
+          <div class="panel-card alerts-panel" id="alertsPanel">
+            <div class="panel-head" style="margin-bottom:16px;">
+              <h2 class="bottom-panel-title" style="margin-bottom:0;">Recent Alerts</h2>
+              <a href="#" class="view-all-link">View All</a>
+            </div>
+
+            <div class="alert-row">
+              <span class="alert-dot red"></span>
+              <div class="alert-info">
+                <strong>Rain Alert</strong>
+                <p>Moderate rainfall expected tomorrow.</p>
+              </div>
+              <span class="alert-time red">2 hours ago</span>
+            </div>
+
+            <div class="alert-row">
+              <span class="alert-dot amber"></span>
+              <div class="alert-info">
+                <strong>EMI Reminder</strong>
+                <p>Your EMI is due in 15 days.</p>
+              </div>
+              <span class="alert-time amber">Today, 9:00 AM</span>
+            </div>
+
+            <div class="alert-row">
+              <span class="alert-dot orange"></span>
+              <div class="alert-info">
+                <strong>High Risk Warning</strong>
+                <p>Your risk score increased by 5 points.</p>
+              </div>
+              <span class="alert-time">Yesterday</span>
             </div>
           </div>
-        </div>
 
-        <!-- Government Subsidies Tracking Widget -->
-        <div class="dash-panel-card" style="background: linear-gradient(135deg, #f0fdf4 0%, #e8f5e9 100%); border-color: rgba(22,163,74,0.3);">
-          <h3 style="font-size:1rem; font-weight:800; color:var(--primary); margin-bottom:8px;">
-            🏛️ Direct Benefit Subsidy Tracker
-          </h3>
-          <p style="font-size:0.82rem; color:var(--text-muted); line-height:1.5; margin-bottom:12px;">
-            Your PM-KISAN Aadhaar biometric validation is 100% compliant.
-          </p>
-          <div style="font-size:0.8rem; font-weight:700; color:var(--primary); display:flex; justify-content:space-between; margin-bottom:6px;">
-            <span>16th Installment (₹2,000)</span>
-            <span style="color:var(--accent);">Disbursed ✓</span>
+          <!-- Quick Access -->
+          <div class="panel-card quick-access-panel">
+            <h2 class="bottom-panel-title">Quick Access</h2>
+
+            <div class="quick-grid">
+              <a href="#" class="quick-item">
+                <span class="quick-icon green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </span>
+                <span>Risk Score</span>
+              </a>
+              <a href="#" class="quick-item">
+                <span class="quick-icon green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+                </span>
+                <span>Mandi Prices</span>
+              </a>
+              <a href="#" class="quick-item">
+                <span class="quick-icon green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+                </span>
+                <span>Weather</span>
+              </a>
+              <a href="#" class="quick-item">
+                <span class="quick-icon green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/></svg>
+                </span>
+                <span>Schemes</span>
+              </a>
+              <a href="#" class="quick-item">
+                <span class="quick-icon green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                </span>
+                <span>Loan Details</span>
+              </a>
+              <a href="#" class="quick-item">
+                <span class="quick-icon green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </span>
+                <span>Loan Due Tracker</span>
+              </a>
+              <a href="#" class="quick-item">
+                <span class="quick-icon green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M5.12 19a7 7 0 0 1 0-14"/><path d="M18.88 5a7 7 0 0 1 0 14"/><circle cx="12" cy="12" r="1"/></svg>
+                </span>
+                <span>IoT Monitoring</span>
+              </a>
+              <a href="#" class="quick-item">
+                <span class="quick-icon green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </span>
+                <span>Support</span>
+              </a>
+            </div>
           </div>
-          <div style="font-size:0.8rem; font-weight:700; color:var(--primary); display:flex; justify-content:space-between;">
-            <span>Solar Pump Subsidy (60%)</span>
-            <span style="color:var(--accent);">Approved ✓</span>
-          </div>
-        </div>
 
-      </div>
+        </section>
 
+      </main>
     </div>
+  </div>
 
-  </main>
+  <script>
+    // ====== Sidebar Toggle ======
+    const hamburger = document.getElementById('hamburgerBtn');
+    const sidebar = document.getElementById('sidebar');
+    const layout = document.querySelector('.dashboard-layout');
+
+    hamburger.addEventListener('click', () => {
+      layout.classList.toggle('sidebar-collapsed');
+    });
+
+    // ====== Active Nav Item ======
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // ====== Mandi Price Chart (Canvas) ======
+    function drawChart() {
+      const canvas = document.getElementById('priceChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const container = document.getElementById('chartContainer');
+
+      const dpr = window.devicePixelRatio || 1;
+      const rect = container.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      canvas.style.width = rect.width + 'px';
+      canvas.style.height = rect.height + 'px';
+      ctx.scale(dpr, dpr);
+
+      const W = rect.width;
+      const H = rect.height;
+      const pad = { top: 30, right: 60, bottom: 40, left: 55 };
+
+      // Data
+      const labels = ['18 May', '19 May', '22 May', '25 May', '28 May', '31 May'];
+      const prices = [1900, 1950, 2020, 2060, 2150, 2260];
+      const minP = 1800, maxP = 2400;
+      const ySteps = [1800, 2000, 2200, 2400];
+
+      const plotW = W - pad.left - pad.right;
+      const plotH = H - pad.top - pad.bottom;
+
+      function xPos(i) { return pad.left + (i / (labels.length - 1)) * plotW; }
+      function yPos(v) { return pad.top + plotH - ((v - minP) / (maxP - minP)) * plotH; }
+
+      // Grid lines & Y labels
+      ctx.strokeStyle = '#e8ece9';
+      ctx.lineWidth = 1;
+      ctx.font = '11px Inter, sans-serif';
+      ctx.fillStyle = '#8a9890';
+      ctx.textAlign = 'right';
+      ySteps.forEach(v => {
+        const y = yPos(v);
+        ctx.beginPath();
+        ctx.setLineDash([4, 4]);
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(W - pad.right, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillText(v.toLocaleString(), pad.left - 10, y + 4);
+      });
+
+      // X labels
+      ctx.textAlign = 'center';
+      labels.forEach((l, i) => {
+        ctx.fillText(l, xPos(i), H - pad.bottom + 20);
+      });
+
+      // Area fill
+      const gradient = ctx.createLinearGradient(0, pad.top, 0, pad.top + plotH);
+      gradient.addColorStop(0, 'rgba(22, 163, 74, 0.18)');
+      gradient.addColorStop(1, 'rgba(22, 163, 74, 0.02)');
+
+      ctx.beginPath();
+      ctx.moveTo(xPos(0), yPos(prices[0]));
+      prices.forEach((p, i) => { if (i > 0) ctx.lineTo(xPos(i), yPos(p)); });
+      ctx.lineTo(xPos(prices.length - 1), pad.top + plotH);
+      ctx.lineTo(xPos(0), pad.top + plotH);
+      ctx.closePath();
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      // Line
+      ctx.beginPath();
+      ctx.moveTo(xPos(0), yPos(prices[0]));
+      prices.forEach((p, i) => { if (i > 0) ctx.lineTo(xPos(i), yPos(p)); });
+      ctx.strokeStyle = '#16a34a';
+      ctx.lineWidth = 2.5;
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+
+      // Dots
+      prices.forEach((p, i) => {
+        ctx.beginPath();
+        ctx.arc(xPos(i), yPos(p), 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+        ctx.strokeStyle = '#16a34a';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+      });
+
+      // Last price tooltip
+      const lastX = xPos(prices.length - 1);
+      const lastY = yPos(prices[prices.length - 1]);
+      const tipW = 85, tipH = 28, tipR = 6;
+      const tipX = lastX - tipW - 10;
+      const tipY = lastY - tipH / 2;
+
+      ctx.beginPath();
+      ctx.roundRect(tipX, tipY, tipW, tipH, tipR);
+      ctx.fillStyle = '#0d3820';
+      ctx.fill();
+
+      // Tooltip arrow
+      ctx.beginPath();
+      ctx.moveTo(tipX + tipW, lastY - 5);
+      ctx.lineTo(tipX + tipW + 7, lastY);
+      ctx.lineTo(tipX + tipW, lastY + 5);
+      ctx.fillStyle = '#0d3820';
+      ctx.fill();
+
+      ctx.fillStyle = '#fff';
+      ctx.font = '600 11px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('₹2,260', tipX + tipW / 2, tipY + 12);
+      ctx.font = '10px Inter, sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.fillText('Expected Price', tipX + tipW / 2, tipY + 23);
+    }
+
+    // Draw on load & resize
+    window.addEventListener('load', drawChart);
+    window.addEventListener('resize', drawChart);
+
+    // =========================================================================
+    // FEATURE: Loan Due Tracker Dynamic Controller (Contributor: Shrim)
+    // =========================================================================
+    const openDueDateModalBtn = document.getElementById('openDueDateModalBtn');
+    const closeDueDateModalBtn = document.getElementById('closeDueDateModalBtn');
+    const cancelDueDateModalBtn = document.getElementById('cancelDueDateModalBtn');
+    const loanDueDateModal = document.getElementById('loanDueDateModal');
+    const loanDueDateForm = document.getElementById('loanDueDateForm');
+    const newLoanDueDateInput = document.getElementById('newLoanDueDateInput');
+
+    if (openDueDateModalBtn && loanDueDateModal) {
+      openDueDateModalBtn.addEventListener('click', () => {
+        loanDueDateModal.style.display = 'flex';
+      });
+      if (closeDueDateModalBtn) {
+        closeDueDateModalBtn.addEventListener('click', () => {
+          loanDueDateModal.style.display = 'none';
+        });
+      }
+      if (cancelDueDateModalBtn) {
+        cancelDueDateModalBtn.addEventListener('click', () => {
+          loanDueDateModal.style.display = 'none';
+        });
+      }
+      loanDueDateModal.addEventListener('click', (e) => {
+        if (e.target === loanDueDateModal) loanDueDateModal.style.display = 'none';
+      });
+
+      if (loanDueDateForm) {
+        loanDueDateForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const saveBtn = document.getElementById('saveDueDateBtn');
+          saveBtn.disabled = true;
+          saveBtn.textContent = 'Updating...';
+
+          try {
+            const resp = await fetch('/api/loan-tracker/update', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ dueDate: newLoanDueDateInput.value })
+            });
+            const res = await resp.json();
+            if (res.status === 'success') {
+              const t = res.tracker;
+              document.getElementById('trackerDueDateDisplay').textContent = '📅 ' + t.formatted_due_date;
+              
+              const numEl = document.getElementById('trackerDaysNumber');
+              numEl.textContent = t.days_display;
+              numEl.style.color = t.status_color;
+              
+              document.getElementById('trackerDaysLabel').textContent = t.label_text;
+
+              const ring = document.getElementById('trackerRingProgress');
+              if (ring) {
+                ring.setAttribute('stroke', t.status_color);
+                ring.setAttribute('stroke-dashoffset', t.stroke_dashoffset);
+              }
+
+              const reminderBox = document.getElementById('trackerReminderBox');
+              if (reminderBox) {
+                reminderBox.style.borderLeft = `3px solid ${t.status_color}`;
+              }
+              const reminderIcon = document.getElementById('trackerReminderIcon');
+              if (reminderIcon) {
+                reminderIcon.setAttribute('stroke', t.status_color);
+              }
+              document.getElementById('trackerReminderText').textContent = t.reminder_message;
+
+              loanDueDateModal.style.display = 'none';
+            } else {
+              alert(res.message || 'Failed to update due date.');
+            }
+          } catch (err) {
+            alert('Failed to connect to server.');
+          } finally {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Update Tracker';
+          }
+        });
+      }
+    }
+  </script>
+
+  <!-- Modal: Update Loan Due Date (Feature: Loan Due Tracker - Contributed by Shrim) -->
+  <div class="loan-modal-overlay" id="loanDueDateModal" style="display:none;">
+    <div class="loan-modal-card">
+      <div class="loan-modal-header">
+        <h3>Update Loan Due Date</h3>
+        <button class="loan-modal-close" id="closeDueDateModalBtn" type="button">&times;</button>
+      </div>
+      <p class="loan-modal-desc">Select your upcoming loan EMI due date to recalculate days remaining & visual countdown in real time:</p>
+      <form id="loanDueDateForm">
+        <div class="loan-modal-input-group">
+          <label for="newLoanDueDateInput">Next EMI Due Date</label>
+          <input type="date" id="newLoanDueDateInput" value="{{ loan_tracker.raw_due_date if loan_tracker else '' }}" required>
+        </div>
+        <div class="loan-modal-actions">
+          <button type="button" class="btn-cancel" id="cancelDueDateModalBtn">Cancel</button>
+          <button type="submit" class="btn-save" id="saveDueDateBtn">Update Tracker</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
 </body>
 </html>
