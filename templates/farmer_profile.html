@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ farmer.full_name or 'Farmer' }} — Profile | OZONE Smart Farming</title>
+  <meta name="description" content="View and update your registered farming profile on OZONE Smart Farming. Securely manage your personal, land, financial, and crop advisory details.">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo_clean.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+</head>
+<body>
+
+  <!-- Background Backdrop with Frosted Blur -->
+  <div class="reg-bg-backdrop"></div>
+
+  <!-- Top Navigation & Actions Bar -->
+  <div class="reg-topbar">
+    <a href="{{ url_for('home') }}" class="btn-back-home">
+      ← Back to Dashboard / डैशबोर्ड पर वापस जाएँ
+    </a>
+    <div class="portal-tag">
+      <span>🌾</span> OZONE Farmer Portal &bull; Profile Management
+    </div>
+    <a href="{{ url_for('logout') }}" class="btn-logout-top" title="Logout of your account">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <span>Logout / लॉगआउट</span>
+    </a>
+  </div>
+
+  <!-- Main Profile Card Container -->
+  <div class="reg-container-card">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="reg-sidebar">
+      <div class="sidebar-header">
+        
+        <!-- Farmer Avatar Card -->
+        <div class="profile-avatar-card">
+          <img src="{{ url_for('static', filename='images/farmer_feathered.png') }}" 
+               alt="{{ farmer.full_name }}" 
+               class="profile-avatar-img"
+               onerror="this.src='{{ url_for('static', filename='images/farmer.png') }}'">
+          <h2 class="profile-farmer-name">{{ farmer.full_name }}</h2>
+          <div class="profile-farmer-id">ID: OZONE-KID-{{ '%05d' % farmer.id }}</div>
+        </div>
+
+        <p class="sidebar-subtext">
+          Registered member of OZONE Smart Agriculture Intelligence network since {{ farmer.created_at[:10] if farmer.created_at else '2026' }}.
+        </p>
+
+        <!-- Quick Info Stats -->
+        <div class="profile-quick-stats">
+          <div class="stat-pill">
+            <div class="stat-pill-label">Total Land</div>
+            <div class="stat-pill-val">{{ farmer.total_land or '0' }} Acres</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-pill-label">Category</div>
+            <div class="stat-pill-val">{{ (farmer.farmer_category or 'Farmer').split('/')[0].strip() }}</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-pill-label">State</div>
+            <div class="stat-pill-val">{{ (farmer.state or 'Punjab').split('/')[0].strip() }}</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-pill-label">KCC Status</div>
+            <div class="stat-pill-val">{{ (farmer.has_kcc or 'No').split('/')[0].strip() }}</div>
+          </div>
+        </div>
+
+        <div class="sidebar-benefits-list">
+          <div class="benefit-pill-item">
+            <span class="benefit-icon">📱</span>
+            <div>
+              <strong>Registered Mobile / मोबाइल</strong><br>
+              <span class="hindi-sub" style="font-size:0.75rem; color:#86efac;">+91 {{ farmer.mobile }}</span>
+            </div>
+          </div>
+
+          <div class="benefit-pill-item">
+            <span class="benefit-icon">✉️</span>
+            <div>
+              <strong>Login Email / ईमेल</strong><br>
+              <span class="hindi-sub" style="font-size:0.75rem; color:#86efac; word-break:break-all;">{{ farmer.email }}</span>
+            </div>
+          </div>
+
+          <div class="benefit-pill-item">
+            <span class="benefit-icon">🛡️</span>
+            <div>
+              <strong>Aadhaar Card / आधार संख्या</strong><br>
+              <span class="hindi-sub" style="font-size:0.75rem; color:#86efac;">
+                {% if farmer.aadhar and farmer.aadhar|length >= 4 %}
+                  XXXX-XXXX-{{ farmer.aadhar[-4:] }} (Locked)
+                {% else %}
+                  Verified on Record
+                {% endif %}
+              </span>
+            </div>
+          </div>
+
+          <div class="benefit-pill-item">
+            <span class="benefit-icon">🌾</span>
+            <div>
+              <strong>Primary Crops / मुख्य फसलें</strong><br>
+              <span class="hindi-sub" style="font-size:0.75rem; color:#86efac;">{{ farmer.main_crops or 'Wheat, Paddy, Mustard' }}</span>
+            </div>
+          </div>
+
+          <div class="benefit-pill-item">
+            <span class="benefit-icon">📍</span>
+            <div>
+              <strong>Farm Region / कृषि क्षेत्र</strong><br>
+              <span class="hindi-sub" style="font-size:0.75rem; color:#86efac;">{{ farmer.district or 'Ludhiana' }}, {{ (farmer.state or 'Punjab').split('/')[0].strip() }} ({{ farmer.pincode or '141101' }})</span>
+            </div>
+          </div>
+
+          <div class="benefit-pill-item">
+            <span class="benefit-icon">💧</span>
+            <div>
+              <strong>Soil &amp; Irrigation / मिट्टी व सिंचाई</strong><br>
+              <span class="hindi-sub" style="font-size:0.75rem; color:#86efac;">{{ (farmer.soil_type or 'Alluvial').split('/')[0].strip() }} &bull; {{ (farmer.irrigation_source or 'Canal').split('/')[0].strip() }}</span>
+            </div>
+          </div>
+
+          <div class="benefit-pill-item">
+            <span class="benefit-icon">🏦</span>
+            <div>
+              <strong>Bank &amp; Credit / बैंक विवरण</strong><br>
+              <span class="hindi-sub" style="font-size:0.75rem; color:#86efac;">{{ farmer.bank_name or 'State Bank of India' }} {% if farmer.has_kcc and ('Yes' in farmer.has_kcc or 'हाँ' in farmer.has_kcc) %}&bull; KCC Holder{% endif %}</span>
+            </div>
+          </div>
+
+          <div class="benefit-pill-item">
+            <span class="benefit-icon">📜</span>
+            <div>
+              <strong>Crop Insurance / फसल बीमा</strong><br>
+              <span class="hindi-sub" style="font-size:0.75rem; color:#86efac;">{{ (farmer.has_insurance or 'Yes').split('/')[0].strip() }} &bull; PMFBY Covered</span>
+            </div>
+          </div>
+
+          <div class="benefit-pill-item">
+            <span class="benefit-icon">🌱</span>
+            <div>
+              <strong>Experience / कृषि अनुभव</strong><br>
+              <span class="hindi-sub" style="font-size:0.75rem; color:#86efac;">{{ farmer.experience or '10' }}+ Years &bull; {{ (farmer.farmer_category or 'Small').split('/')[0].strip() }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="sidebar-footer-content" style="margin-top: 16px;">
+        <div class="sidebar-helpline-box">
+          <span>📞 24x7 Kisan Helpline / किसान सहायता</span>
+          <span class="sidebar-helpline-num">1800-180-1551 (Toll-Free)</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT FORM PANEL -->
+    <main class="reg-form-panel">
+      
+      <header class="form-header-title-box">
+        <h1 class="form-main-heading">
+          Farmer Profile <span class="hindi-sub">/ किसान प्रोफ़ाइल</span>
+        </h1>
+        <p class="form-sub-desc">
+          Review and update your farm profile details below. Changes are saved directly to the database.<br>
+          <span class="hindi-desc">अपनी पंजीकृत कृषि जानकारी देखें और संपादित करें। आधार नंबर सुरक्षा कारणों से अपरिवर्तनीय है।</span>
+        </p>
+      </header>
+
+      {% if error %}
+      <div class="alert-box error">
+        <span>⚠️</span>
+        <div>{{ error }}</div>
+      </div>
+      {% endif %}
+
+      {% if success %}
+      <div class="alert-box success">
+        <span>✅</span>
+        <div>
+          <strong>{{ success }}</strong><br>
+          All profile details have been saved to your OZONE record.
+          <div style="margin-top: 8px;">
+            <a href="{{ url_for('home') }}" style="background: #16a34a; color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 0.82rem; font-weight: 700; display: inline-block;">
+              Return to Dashboard / डैशबोर्ड पर वापस जाएँ →
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <form action="{{ url_for('farmer_profile') }}" method="POST" autocomplete="off" id="profileForm">
+
+        <!-- ================= SECTION 1: Personal Information ================= -->
+        <section class="form-step-section">
+          <div class="section-legend-header">
+            <span class="legend-badge-icon">1</span>
+            <span>Personal Information <span class="hindi-sub">/ व्यक्तिगत जानकारी</span></span>
+          </div>
+
+          <div class="grid-4-fields">
+            <div class="field-group">
+              <label class="field-label">Full Name <span class="hindi-label">/ पूरा नाम</span> <span class="req-star">*</span></label>
+              <input type="text" name="fullName" class="input-control" value="{{ farmer.full_name or '' }}" placeholder="e.g. Ramesh Kumar" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Mobile Number <span class="hindi-label">/ मोबाइल नंबर</span> <span class="req-star">*</span></label>
+              <input type="tel" name="mobile" class="input-control" value="{{ farmer.mobile or '' }}" placeholder="10-digit number" pattern="[0-9]{10}" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Email Address <span class="hindi-label">/ ईमेल आईडी</span> <span class="req-star">*</span></label>
+              <input type="email" name="email" class="input-control" value="{{ farmer.email or '' }}" placeholder="e.g. farmer@kisan.in" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">New Password <span class="hindi-label">/ नया पासवर्ड (वैकल्पिक)</span></label>
+              <div class="input-with-toggle">
+                <input type="password" name="password" id="profilePassword" class="input-control" placeholder="Leave blank to keep unchanged">
+                <button type="button" class="eye-toggle-btn" onclick="togglePasswordVisibility('profilePassword')" title="Show/Hide Password">
+                  👁️
+                </button>
+              </div>
+            </div>
+
+            <!-- Aadhaar Number (NON-EDITABLE) -->
+            <div class="field-group">
+              <label class="field-label">Aadhaar Number <span class="hindi-label">/ आधार नंबर</span></label>
+              <input type="text" class="input-control locked-field" value="{{ farmer.aadhar or '' }}" readonly disabled>
+              <span class="locked-hint">⚠️ Aadhaar number is permanently locked &amp; cannot be edited / आधार नंबर अपरिवर्तनीय है</span>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Date of Birth <span class="hindi-label">/ जन्म तिथि</span> <span class="req-star">*</span></label>
+              <input type="text" name="dob" class="input-control" value="{{ farmer.dob or '' }}" placeholder="DD/MM/YYYY" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Gender <span class="hindi-label">/ लिंग</span> <span class="req-star">*</span></label>
+              <select name="gender" class="select-control" required>
+                <option value="">Select Gender / लिंग चुनें</option>
+                <option value="Male / पुरुष" {% if farmer.gender and 'Male' in farmer.gender %}selected{% endif %}>Male / पुरुष</option>
+                <option value="Female / महिला" {% if farmer.gender and 'Female' in farmer.gender %}selected{% endif %}>Female / महिला</option>
+                <option value="Other / अन्य" {% if farmer.gender and 'Other' in farmer.gender %}selected{% endif %}>Other / अन्य</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Marital Status <span class="hindi-label">/ वैवाहिक स्थिति</span></label>
+              <select name="maritalStatus" class="select-control">
+                <option value="">Select Status / स्थिति चुनें</option>
+                <option value="Married / विवाहित" {% if farmer.marital_status and 'Married' in farmer.marital_status %}selected{% endif %}>Married / विवाहित</option>
+                <option value="Single / अविवाहित" {% if farmer.marital_status and 'Single' in farmer.marital_status %}selected{% endif %}>Single / अविवाहित</option>
+              </select>
+            </div>
+
+            <div class="field-group span-2">
+              <label class="field-label">Full Address <span class="hindi-label">/ पूरा पता</span> <span class="req-star">*</span></label>
+              <input type="text" name="address" class="input-control" value="{{ farmer.address or '' }}" placeholder="House/Village, Post Office, Tehsil" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">State <span class="hindi-label">/ राज्य</span> <span class="req-star">*</span></label>
+              <select name="state" class="select-control" required>
+                <option value="">Select State / राज्य चुनें</option>
+                <option value="Punjab / पंजाब" {% if farmer.state and 'Punjab' in farmer.state %}selected{% endif %}>Punjab / पंजाब</option>
+                <option value="Haryana / हरियाणा" {% if farmer.state and 'Haryana' in farmer.state %}selected{% endif %}>Haryana / हरियाणा</option>
+                <option value="Rajasthan / राजस्थान" {% if farmer.state and 'Rajasthan' in farmer.state %}selected{% endif %}>Rajasthan / राजस्थान</option>
+                <option value="Uttar Pradesh / उत्तर प्रदेश" {% if farmer.state and ('Uttar Pradesh' in farmer.state or 'UP' in farmer.state) %}selected{% endif %}>Uttar Pradesh / उत्तर प्रदेश</option>
+                <option value="Madhya Pradesh / मध्य प्रदेश" {% if farmer.state and ('Madhya Pradesh' in farmer.state or 'MP' in farmer.state) %}selected{% endif %}>Madhya Pradesh / मध्य प्रदेश</option>
+                <option value="Maharashtra / महाराष्ट्र" {% if farmer.state and 'Maharashtra' in farmer.state %}selected{% endif %}>Maharashtra / महाराष्ट्र</option>
+                <option value="Gujarat / गुजरात" {% if farmer.state and 'Gujarat' in farmer.state %}selected{% endif %}>Gujarat / गुजरात</option>
+                <option value="Bihar / बिहार" {% if farmer.state and 'Bihar' in farmer.state %}selected{% endif %}>Bihar / बिहार</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">District &amp; Pincode <span class="hindi-label">/ जिला व पिनकोड</span> <span class="req-star">*</span></label>
+              <div style="display:flex; gap:8px;">
+                <input type="text" name="district" class="input-control" value="{{ farmer.district or '' }}" placeholder="District / जिला" style="flex:1.2;" required>
+                <input type="text" name="pincode" class="input-control" value="{{ farmer.pincode or '' }}" placeholder="Pincode" style="flex:0.8;" pattern="[0-9]{6}" required>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= SECTION 2: Farm Information ================= -->
+        <section class="form-step-section">
+          <div class="section-legend-header">
+            <span class="legend-badge-icon">2</span>
+            <span>Farm &amp; Agriculture Details <span class="hindi-sub">/ कृषि जानकारी</span></span>
+          </div>
+
+          <div class="grid-4-fields">
+            <div class="field-group">
+              <label class="field-label">Land Ownership <span class="hindi-label">/ भूमि स्वामित्व</span> <span class="req-star">*</span></label>
+              <select name="landOwnership" class="select-control" required>
+                <option value="">Select Ownership / स्वामित्व</option>
+                <option value="Owned / स्वयं का" {% if farmer.land_ownership and 'Owned' in farmer.land_ownership %}selected{% endif %}>Owned / स्वयं का</option>
+                <option value="Leased / पट्टे पर" {% if farmer.land_ownership and 'Leased' in farmer.land_ownership %}selected{% endif %}>Leased / पट्टे पर</option>
+                <option value="Sharecropper / बटाईदार" {% if farmer.land_ownership and 'Sharecropper' in farmer.land_ownership %}selected{% endif %}>Sharecropper / बटाईदार</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Total Land (Acres) <span class="hindi-label">/ कुल भूमि (एकड़)</span> <span class="req-star">*</span></label>
+              <input type="number" step="0.1" name="totalLand" class="input-control" value="{{ farmer.total_land or '0' }}" placeholder="e.g. 4.5" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Irrigation Source <span class="hindi-label">/ सिंचाई स्रोत</span></label>
+              <select name="irrigationSource" class="select-control">
+                <option value="Canal / नहर" {% if farmer.irrigation_source and 'Canal' in farmer.irrigation_source %}selected{% endif %}>Canal / नहर</option>
+                <option value="Borewell / ट्यूबवेल" {% if farmer.irrigation_source and 'Borewell' in farmer.irrigation_source %}selected{% endif %}>Borewell / ट्यूबवेल</option>
+                <option value="Rainfed / वर्षा आधारित" {% if farmer.irrigation_source and 'Rainfed' in farmer.irrigation_source %}selected{% endif %}>Rainfed / वर्षा आधारित</option>
+                <option value="Drip & Sprinkler / ड्रिप स्प्रिंकलर" {% if farmer.irrigation_source and ('Drip' in farmer.irrigation_source or 'Sprinkler' in farmer.irrigation_source) %}selected{% endif %}>Drip &amp; Sprinkler / ड्रिप</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Soil Type <span class="hindi-label">/ मिट्टी का प्रकार</span></label>
+              <select name="soilType" class="select-control">
+                <option value="Alluvial / जलोढ़" {% if farmer.soil_type and 'Alluvial' in farmer.soil_type %}selected{% endif %}>Alluvial / जलोढ़</option>
+                <option value="Black Soil / काली मिट्टी" {% if farmer.soil_type and 'Black' in farmer.soil_type %}selected{% endif %}>Black Soil / काली मिट्टी</option>
+                <option value="Red & Yellow / लाल मिट्टी" {% if farmer.soil_type and ('Red' in farmer.soil_type or 'Yellow' in farmer.soil_type) %}selected{% endif %}>Red &amp; Yellow / लाल मिट्टी</option>
+                <option value="Sandy Loam / दोमट रेतीली" {% if farmer.soil_type and ('Sandy' in farmer.soil_type or 'Loam' in farmer.soil_type) %}selected{% endif %}>Sandy Loam / दोमट रेतीली</option>
+              </select>
+            </div>
+
+            <div class="field-group span-2">
+              <label class="field-label">Main Crops Grown <span class="hindi-label">/ मुख्य फसलें</span> <span class="req-star">*</span></label>
+              <input type="text" name="mainCrops" class="input-control" value="{{ farmer.main_crops or '' }}" placeholder="e.g. Wheat, Basmati Rice, Mustard" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Farming Experience <span class="hindi-label">/ अनुभव (वर्ष)</span> <span class="req-star">*</span></label>
+              <input type="number" name="experience" class="input-control" value="{{ farmer.experience or '0' }}" placeholder="Years / वर्ष" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Annual Income (₹) <span class="hindi-label">/ वार्षिक आय</span> <span class="req-star">*</span></label>
+              <select name="annualIncome" class="select-control" required>
+                <option value="Below ₹1,00,000" {% if farmer.annual_income and ('Below' in farmer.annual_income or '<' in farmer.annual_income) %}selected{% endif %}>Below ₹1,00,000</option>
+                <option value="₹1,00,000 - ₹3,00,000" {% if farmer.annual_income and '1,00,000' in farmer.annual_income and '3,00,000' in farmer.annual_income %}selected{% endif %}>₹1,00,000 - ₹3,00,000</option>
+                <option value="₹3,00,000 - ₹5,00,000" {% if farmer.annual_income and '3,00,000' in farmer.annual_income and '5,00,000' in farmer.annual_income %}selected{% endif %}>₹3,00,000 - ₹5,00,000</option>
+                <option value="Above ₹5,00,000" {% if farmer.annual_income and ('Above' in farmer.annual_income or '>' in farmer.annual_income) %}selected{% endif %}>Above ₹5,00,000</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= SECTION 3: Financial & Credit Information ================= -->
+        <section class="form-step-section">
+          <div class="section-legend-header">
+            <span class="legend-badge-icon">3</span>
+            <span>Financial &amp; Banking Details <span class="hindi-sub">/ वित्तीय जानकारी</span></span>
+          </div>
+
+          <div class="grid-4-fields">
+            <div class="field-group">
+              <label class="field-label">Active Crop Loan? <span class="hindi-label">/ कृषि ऋण है?</span> <span class="req-star">*</span></label>
+              <select name="hasLoan" class="select-control" required>
+                <option value="No / नहीं" {% if farmer.has_loan and ('No' in farmer.has_loan or 'नहीं' in farmer.has_loan) %}selected{% endif %}>No / नहीं</option>
+                <option value="Yes / हाँ" {% if farmer.has_loan and ('Yes' in farmer.has_loan or 'हाँ' in farmer.has_loan) %}selected{% endif %}>Yes / हाँ</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Loan Amount (if any) <span class="hindi-label">/ ऋण राशि (₹)</span></label>
+              <input type="text" name="loanAmount" class="input-control" value="{{ farmer.loan_amount or '' }}" placeholder="e.g. ₹1,50,000">
+            </div>
+
+            <!-- Loan Due Date field (Feature: Loan Due Tracker - Contributed by Shrim) -->
+            <div class="field-group">
+              <label class="field-label">Next EMI Due Date <span class="hindi-label">/ ऋण देय तिथि</span></label>
+              <input type="date" name="loanDueDate" class="input-control" id="loanDueDate" value="{{ farmer.loan_due_date or '' }}">
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Primary Bank Name <span class="hindi-label">/ बैंक का नाम</span></label>
+              <input type="text" name="bankName" class="input-control" value="{{ farmer.bank_name or '' }}" placeholder="e.g. State Bank of India">
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Have Kisan Credit Card? <span class="hindi-label">/ केसीसी कार्ड?</span></label>
+              <select name="hasKcc" class="select-control">
+                <option value="Yes / हाँ" {% if farmer.has_kcc and ('Yes' in farmer.has_kcc or 'हाँ' in farmer.has_kcc) %}selected{% endif %}>Yes / हाँ (Already Have KCC)</option>
+                <option value="No / नहीं" {% if farmer.has_kcc and ('No' in farmer.has_kcc or 'नहीं' in farmer.has_kcc) %}selected{% endif %}>No / नहीं (Need to Apply)</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Monthly Farm Revenue (₹) <span class="hindi-label">/ मासिक आय</span> <span class="req-star">*</span></label>
+              <input type="text" name="monthlyIncome" class="input-control" value="{{ farmer.monthly_income or '' }}" placeholder="e.g. ₹35,000" required>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Monthly EMI Outflow (₹) <span class="hindi-label">/ ईएमआई</span></label>
+              <input type="text" name="existingEmi" class="input-control" value="{{ farmer.existing_emi or '' }}" placeholder="e.g. ₹0">
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Crop Insurance (PMFBY)? <span class="hindi-label">/ फसल बीमा है?</span> <span class="req-star">*</span></label>
+              <select name="hasInsurance" class="select-control" required>
+                <option value="Yes / हाँ" {% if farmer.has_insurance and ('Yes' in farmer.has_insurance or 'हाँ' in farmer.has_insurance) %}selected{% endif %}>Yes / हाँ (Insured under PMFBY)</option>
+                <option value="No / नहीं" {% if farmer.has_insurance and ('No' in farmer.has_insurance or 'नहीं' in farmer.has_insurance) %}selected{% endif %}>No / नहीं (Need Crop Insurance Cover)</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= SECTION 4: Additional Information ================= -->
+        <section class="form-step-section">
+          <div class="section-legend-header">
+            <span class="legend-badge-icon">4</span>
+            <span>Category &amp; Advisory Preferences <span class="hindi-sub">/ अतिरिक्त प्राथमिकताएँ</span></span>
+          </div>
+
+          <div class="grid-4-fields">
+            <div class="field-group">
+              <label class="field-label">Farmer Category <span class="hindi-label">/ किसान श्रेणी</span> <span class="req-star">*</span></label>
+              <select name="farmerCategory" class="select-control" required>
+                <option value="Small / लघु (< 5 Acres)" {% if farmer.farmer_category and ('Small' in farmer.farmer_category or 'लघु' in farmer.farmer_category) %}selected{% endif %}>Small / लघु (&lt; 5 Acres)</option>
+                <option value="Marginal / सीमांत (< 2.5 Acres)" {% if farmer.farmer_category and ('Marginal' in farmer.farmer_category or 'सीमांत' in farmer.farmer_category) %}selected{% endif %}>Marginal / सीमांत (&lt; 2.5 Acres)</option>
+                <option value="Medium / मध्यम (5-10 Acres)" {% if farmer.farmer_category and ('Medium' in farmer.farmer_category or 'मध्यम' in farmer.farmer_category) %}selected{% endif %}>Medium / मध्यम (5-10 Acres)</option>
+                <option value="Large / बड़ा (> 10 Acres)" {% if farmer.farmer_category and ('Large' in farmer.farmer_category or 'बड़ा' in farmer.farmer_category) %}selected{% endif %}>Large / बड़ा (&gt; 10 Acres)</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">FPO / Cooperative Member? <span class="hindi-label">/ एफपीओ सदस्य?</span></label>
+              <select name="isFpoMember" class="select-control">
+                <option value="Yes / हाँ" {% if farmer.is_fpo_member and ('Yes' in farmer.is_fpo_member or 'हाँ' in farmer.is_fpo_member) %}selected{% endif %}>Yes / हाँ</option>
+                <option value="No / नहीं" {% if farmer.is_fpo_member and ('No' in farmer.is_fpo_member or 'नहीं' in farmer.is_fpo_member) %}selected{% endif %}>No / नहीं</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">KVK Training Attended? <span class="hindi-label">/ प्रशिक्षण प्राप्त?</span></label>
+              <select name="attendedTraining" class="select-control">
+                <option value="Yes / हाँ" {% if farmer.attended_training and ('Yes' in farmer.attended_training or 'हाँ' in farmer.attended_training) %}selected{% endif %}>Yes / हाँ</option>
+                <option value="No / नहीं" {% if farmer.attended_training and ('No' in farmer.attended_training or 'नहीं' in farmer.attended_training) %}selected{% endif %}>No / नहीं</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Advisory Language <span class="hindi-label">/ भाषा</span> <span class="req-star">*</span></label>
+              <select name="prefLanguage" class="select-control" required>
+                <option value="Hindi / हिंदी" {% if farmer.pref_language and ('Hindi' in farmer.pref_language or 'hi' in farmer.pref_language or 'हिंदी' in farmer.pref_language) %}selected{% endif %}>Hindi / हिंदी</option>
+                <option value="English / अंग्रेज़ी" {% if farmer.pref_language and ('English' in farmer.pref_language or 'en' in farmer.pref_language or 'अंग्रेज़ी' in farmer.pref_language) %}selected{% endif %}>English / अंग्रेज़ी</option>
+                <option value="Punjabi / ਪੰਜਾਬੀ" {% if farmer.pref_language and ('Punjabi' in farmer.pref_language or 'pa' in farmer.pref_language or 'ਪੰਜਾਬੀ' in farmer.pref_language) %}selected{% endif %}>Punjabi / ਪੰਜਾਬੀ</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- Profile Action Footer -->
+        <div class="profile-footer-actions">
+          <button type="submit" class="btn-register-submit" id="saveProfileBtn">
+            <span>Update Profile / प्रोफ़ाइल अपडेट करें</span>
+            <span>✓</span>
+          </button>
+        </div>
+
+      </form>
+    </main>
+
+  </div>
+
+  <script>
+    function togglePasswordVisibility(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.type = el.type === 'password' ? 'text' : 'password';
+      }
+    }
+  </script>
+</body>
+</html>
