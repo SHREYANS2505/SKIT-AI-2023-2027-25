@@ -358,10 +358,10 @@
               <div class="panel-head-left">
                 <h2>Loan Due Tracker</h2>
               </div>
-              <button class="loan-date-edit-btn" id="openDueDateModalBtn" title="Update Due Date">
+              <a href="{{ url_for('farmer_profile') }}" class="loan-date-edit-btn" title="Update in Farmer Profile">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                <span>Change</span>
-              </button>
+          
+              </a>
             </div>
 
             <div class="loan-due-info">
@@ -743,6 +743,113 @@
         });
       }
     }
+
+
+     // ====== Live User Location & Weather Controller ======
+    (function initLiveLocationAndWeather() {
+      const weatherEmoji = document.getElementById('weatherEmoji');
+      const weatherTemp = document.getElementById('weatherTemp');
+      const weatherDesc = document.getElementById('weatherDesc');
+      const locationCity = document.getElementById('locationCity');
+      const currentDate = document.getElementById('currentDate');
+
+      function updateWeatherUI(data) {
+        if (!data) return;
+        if (data.temp && weatherTemp) weatherTemp.textContent = data.temp;
+        if (data.desc && weatherDesc) weatherDesc.textContent = data.desc;
+        if (data.emoji && weatherEmoji) weatherEmoji.textContent = data.emoji;
+        if (data.location_display && locationCity) locationCity.textContent = data.location_display;
+        if (data.current_date && currentDate) currentDate.textContent = data.current_date;
+      }
+
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            try {
+              const resp = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
+              if (resp.ok) {
+                const data = await resp.json();
+                updateWeatherUI(data);
+              }
+            } catch (err) {
+              console.log('Location weather error:', err);
+            }
+          },
+          async () => {
+            // Geolocation fallback to registered farmer district and state
+            try {
+              const defaultCity = "{{ (user.district or 'Ludhiana').split('/')[0].strip() }}";
+              const defaultState = "{{ (user.state or 'Rajasthan').split('/')[0].strip() }}";
+              const resp = await fetch(`/api/weather?city=${encodeURIComponent(defaultCity)}&state=${encodeURIComponent(defaultState)}`);
+              if (resp.ok) {
+                const data = await resp.json();
+                updateWeatherUI(data);
+              }
+            } catch (err) {
+              console.log('Fallback weather error:', err);
+            }
+          },
+          { timeout: 8000, maximumAge: 300000 }
+        );
+      }
+    })();
+
+    // ====== Mandi Crop Price 10-Second Auto-Rotation Controller ======
+    (function initMandiPriceRotator() {
+      const cropsData = {{ mandi_prices | tojson if mandi_prices else '[]' }};
+      if (!cropsData || cropsData.length <= 1) return;
+
+      let currentIdx = 0;
+      let secondsLeft = 10;
+      const counterEl = document.getElementById('mandiCropCounter');
+      const priceEl = document.getElementById('mandiModalPrice');
+      const cropNameEl = document.getElementById('mandiCropName');
+      const badgeTextEl = document.getElementById('mandiBadgeText');
+      const footerEl = document.getElementById('mandiFooterText');
+      const priceCard = document.getElementById('kpiPriceCard');
+
+      function renderCurrentCrop(idx) {
+        const item = cropsData[idx];
+        if (!item) return;
+
+        // Smooth subtle transition
+        if (priceCard) {
+          priceCard.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+          priceCard.style.opacity = '0.5';
+          priceCard.style.transform = 'scale(0.98)';
+        }
+
+        setTimeout(() => {
+          if (counterEl) counterEl.textContent = `${idx + 1}/${cropsData.length}`;
+          if (priceEl) priceEl.textContent = item.modal_price;
+          if (cropNameEl) {
+            cropNameEl.innerHTML = `<strong>${item.display_name}</strong> <span class="mandi-market-sub">(${item.market})</span>`;
+          }
+          if (badgeTextEl) badgeTextEl.textContent = `${item.state} Mandi`;
+          if (footerEl) {
+            footerEl.innerHTML = `<span>Arrival: ${item.arrival_date}</span> <span class="mandi-timer-dot">⏱️ <b id="mandiTimerSeconds">10s</b></span>`;
+          }
+          if (priceCard) {
+            priceCard.style.opacity = '1';
+            priceCard.style.transform = 'scale(1)';
+          }
+        }, 200);
+      }
+
+      setInterval(() => {
+        secondsLeft -= 1;
+        const curTimer = document.getElementById('mandiTimerSeconds');
+        if (curTimer) curTimer.textContent = `${secondsLeft}s`;
+
+        if (secondsLeft <= 0) {
+          currentIdx = (currentIdx + 1) % cropsData.length;
+          secondsLeft = 10;
+          renderCurrentCrop(currentIdx);
+        }
+      }, 1000);
+    })();
   </script>
 
   <!-- Modal: Update Loan Due Date (Feature: Loan Due Tracker - Contributed by Shrim) -->

@@ -1,7 +1,14 @@
 import os
+from datetime import datetime
+import requests
+from dotenv import load_dotenv
+import os
 import sqlite3
 from flask import Flask, render_template, jsonify, request, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
+
+# Load environment variables from .env
+load_dotenv()
 
 # Feature Modules
 from loan_tracker import (
@@ -10,8 +17,14 @@ from loan_tracker import (
     update_farmer_loan_due_date
 )
 
-app = Flask(__name__, template_folder='templates', static_folder='static')
-app.secret_key = 'ozone-smart-farming-secret-key-2026'
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'ozone-smart-farming-secret-key-2026')
+
+database.init_db()
+
+
+# Weather & Mandi Service Modules
+from weather_service import get_weather_and_location, fetch_live_weather
+from mandi_service import get_farmer_crop_prices
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ozone.db')
 
@@ -262,6 +275,131 @@ def home():
         loan_tracker = get_farmer_loan_tracker_summary(farmer)
         
     return render_template('home.html', user=farmer, loan_tracker=loan_tracker)
+
+    farmer_district = (farmer.get('district') or 'Ludhiana').split('/')[0].strip()
+    farmer_state = (farmer.get('state') or 'Punjab').split('/')[0].strip()
+    initial_weather = get_weather_and_location(default_city=farmer_district, default_state=farmer_state)
+    mandi_prices = get_farmer_crop_prices(farmer.get('state'), farmer.get('main_crops'))
+
+    return render_template(
+        'home.html',
+        user=farmer,
+        loan_tracker=loan_tracker,
+        weather=initial_weather,
+        mandi_prices=mandi_prices
+    )
+
+
+@app.route('/api/weather', methods=['GET'])
+def api_weather():
+    lat = request.args.get('lat', type=float)
+    lon = request.args.get('lon', type=float)
+    city = request.args.get('city', type=str)
+    state = request.args.get('state', type=str)
+
+    # If state or city not passed in query, inspect logged-in farmer
+    if 'user_id' in session:
+        farmer = database.get_farmer_by_id(session['user_id'])
+        if farmer:
+            if not city and not (lat is not None and lon is not None):
+                city = farmer.get('district')
+            if not state:
+                state = farmer.get('state')
+
+    default_city = (city or 'Ludhiana').split('/')[0].strip()
+    default_state = (state or '').split('/')[0].strip() if state else None
+    data = get_weather_and_location(lat=lat, lon=lon, default_city=default_city, default_state=default_state)
+    return jsonify(data)
+
+
+@app.route('/api/mandi-prices', methods=['GET'])
+def api_mandi_prices():
+    if 'user_id' not in session:
+        return jsonify({'status': 'error', 'message': 'Authentication required'}), 401
+    farmer = database.get_farmer_by_id(session['user_id'])
+    if not farmer:
+        return jsonify({'status': 'error', 'message': 'Farmer not found'}), 404
+    prices = get_farmer_crop_prices(farmer.get('state'), farmer.get('main_crops'))
+    return jsonify({'status': 'success', 'prices': prices})
+
+
+@app.route('/farmer-profile', methods=['GET', 'POST'])
+@app.route('/profile', methods=['GET', 'POST'])
+def farmer_profile():
+    if 'user_id' not in session:
+        return redirect(url_for('index'))
+
+    farmer_id = session['user_id']
+    farmer = database.get_farmer_by_id(farmer_id)
+    if not farmer:
+        session.clear()
+        return redirect(url_for('index'))
+
+    error = None
+    success = None
+
+    if request.method == 'POST':
+        full_name = request.form.get('fullName', '').strip()
+        mobile = request.form.get('mobile', '').strip()
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '').strip()
+
+        if not full_name or not mobile or not email:
+            error = "कृपया सभी आवश्यक फ़ील्ड भरें (नाम, मोबाइल, ईमेल) / Please fill all required fields."
+        elif database.email_exists_for_other(email, farmer_id):
+            error = "यह ईमेल पहले से किसी अन्य खाते में पंजीकृत है! / This email is already registered with another account."
+        else:
+            try:
+                update_data = {
+                    'full_name': full_name,
+                    'mobile': mobile,
+                    'email': email,
+                    'dob': request.form.get('dob', '').strip(),
+                    'gender': request.form.get('gender', '').strip(),
+                    'marital_status': request.form.get('maritalStatus', '').strip(),
+                    'address': request.form.get('address', '').strip(),
+                    'state': request.form.get('state', '').strip(),
+                    'district': request.form.get('district', '').strip(),
+                    'pincode': request.form.get('pincode', '').strip(),
+                    'land_ownership': request.form.get('landOwnership', '').strip(),
+                    'total_land': float(request.form.get('totalLand', 0) or 0),
+                    'irrigation_source': request.form.get('irrigationSource', '').strip(),
+                    'soil_type': request.form.get('soilType', '').strip(),
+                    'main_crops': request.form.get('mainCrops', '').strip(),
+                    'experience': int(request.form.get('experience', 0) or 0),
+                    'annual_income': request.form.get('annualIncome', '').strip(),
+                    'has_loan': request.form.get('hasLoan', '').strip(),
+                    'loan_amount': request.form.get('loanAmount', '').strip(),
+                    'bank_name': request.form.get('bankName', '').strip(),
+                    'has_kcc': request.form.get('hasKcc', '').strip(),
+                    'monthly_income': request.form.get('monthlyIncome', '').strip(),
+                    'existing_emi': request.form.get('existingEmi', '').strip(),
+                    'has_insurance': request.form.get('hasInsurance', '').strip(),
+                    'farmer_category': request.form.get('farmerCategory', '').strip(),
+                    'is_fpo_member': request.form.get('isFpoMember', '').strip(),
+                    'attended_training': request.form.get('attendedTraining', '').strip(),
+                    'pref_language': request.form.get('prefLanguage', 'hi').strip(),
+                    'loan_due_date': request.form.get('loanDueDate', '').strip(),
+                }
+
+                if password:
+                    update_data['password_hash'] = generate_password_hash(password)
+
+                database.update_farmer_profile(farmer_id, update_data)
+
+                # Keep session in sync with updated name and email
+                session['user_name'] = full_name
+                session['user_email'] = email
+
+                # Reload updated record from database
+                farmer = database.get_farmer_by_id(farmer_id)
+                success = "किसान प्रोफ़ाइल सफलतापूर्वक अपडेट हो गई है! / Farmer profile updated successfully in database!"
+            except Exception as e:
+                error = f"अपडेट में त्रुटि / Update error: {str(e)}"
+
+    return render_template('farmer_profile.html', farmer=farmer, error=error, success=success)
+
+
 
 # =========================================================================
 # FEATURE MODULE: Loan Due Tracker 
