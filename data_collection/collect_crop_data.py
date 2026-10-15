@@ -3,7 +3,7 @@ import requests
 from datetime import datetime
 
 # ================= 1. CONFIGURATION (Aap yahan change kar sakte ho) =================
-API_KEY = ""
+API_KEY = "579b464db66ec23bdd00000189719ebc116343d67005d1cd94a6632b"
 
 # State & District (Jaipur ya poora Rajasthan)
 STATE = "Rajasthan"
