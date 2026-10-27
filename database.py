@@ -186,3 +186,5 @@ def update_farmer_profile(farmer_id, values):
         conn.commit()
         return cursor.rowcount > 0
 
+
+
