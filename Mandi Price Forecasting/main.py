@@ -147,6 +147,138 @@ def run_pipeline():
     device_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU'
     print(f"\n[2/5] Initializing LSTM model on: {device} ({device_name})...")
 
+ File Paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_FILE = os.path.join(BASE_DIR, 'wheat_data.csv')
+MODEL_FILE = os.path.join(BASE_DIR, 'mandi_model.pth')
+SCALER_FILE = os.path.join(BASE_DIR, 'scaler.pkl')
+CHART_FILE = os.path.join(BASE_DIR, 'forecast_graph.png')
+
+# Model Parameters
+LOOKBACK = 30       # Input window (last 30 days)
+HORIZON = 7         # Multi-step forecast (next 7 days)
+HIDDEN_SIZE = 64    # LSTM hidden units
+NUM_LAYERS = 2      # Stacked LSTM layers
+BATCH_SIZE = 16
+LEARNING_RATE = 0.002
+EPOCHS = 80
+PATIENCE = 10
+
+# -------------------------------------------------------------
+# 1. Neural Network Architecture (Stacked LSTM)
+# -------------------------------------------------------------
+class MandiPriceLSTM(nn.Module):
+    """
+    2-Layer Stacked LSTM with Dropout and Dense Projection Head.
+    Directly predicts all 7 future days to eliminate compounding rollout errors.
+    """
+    def __init__(self, input_size=1, hidden_size=64, num_layers=2, output_size=7, dropout=0.2):
+        super().__init__()
+        self.lstm = nn.LSTM(
+            input_size=input_size,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            batch_first=True,
+            dropout=dropout if num_layers > 1 else 0.0
+        )
+        self.fc = nn.Sequential(
+            nn.Linear(hidden_size, 32),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(32, output_size)
+        )
+
+    def forward(self, x):
+        out, _ = self.lstm(x)
+        last_hidden = out[:, -1, :]
+        return self.fc(last_hidden)
+
+# -------------------------------------------------------------
+# 2. PyTorch Dataset & Sliding Window
+# -------------------------------------------------------------
+class TimeSeriesDataset(Dataset):
+    def __init__(self, X, y):
+        self.X = torch.tensor(X, dtype=torch.float32)
+        self.y = torch.tensor(y, dtype=torch.float32)
+
+    def __len__(self):
+        return len(self.X)
+
+    def __getitem__(self, idx):
+        return self.X[idx], self.y[idx]
+
+def create_sequences(data, lookback=30, horizon=7):
+    X, y = [], []
+    for i in range(len(data) - lookback - horizon + 1):
+        X.append(data[i : i + lookback])
+        y.append(data[i + lookback : i + lookback + horizon, 0])
+    return np.array(X, dtype=np.float32), np.array(y, dtype=np.float32)
+
+# -------------------------------------------------------------
+# 3. Main End-to-End Pipeline
+# -------------------------------------------------------------
+def run_pipeline():
+    print("=" * 72)
+    print("🌾 MANDI 7-DAY PRICE FORECASTING SYSTEM (DEEP LEARNING LSTM)")
+    print("=" * 72)
+
+    if not os.path.exists(DATA_FILE):
+        print(f"Error: {DATA_FILE} not found!")
+        sys.exit(1)
+
+    # Load dataset
+    print(f"\n[1/5] Loading and preprocessing dataset: {os.path.basename(DATA_FILE)}...")
+    df = pd.read_csv(DATA_FILE)
+    df['Date'] = pd.to_datetime(df['Price Date'], format='%d/%m/%Y')
+    df = df.sort_values('Date').reset_index(drop=True)
+
+    commodity = df['Commodity'].iloc[0] if 'Commodity' in df.columns else 'Wheat'
+    market = df['Market'].iloc[0] if 'Market' in df.columns else 'Jaipur APMC'
+
+    # Resample to continuous daily series (forward-fill closed market days)
+    df_daily = df.set_index('Date').resample('D').ffill().reset_index()
+    prices = df_daily['Modal Price'].values.astype(np.float32).reshape(-1, 1)
+
+    total_pts = len(prices)
+    start_d = df_daily['Date'].min().strftime('%d %b %Y')
+    end_d = df_daily['Date'].max().strftime('%d %b %Y')
+    last_price = float(df_daily['Modal Price'].iloc[-1])
+
+    print(f"  • Commodity:          {commodity} ({market})")
+    print(f"  • Raw Records:        {len(df)} trade days")
+    print(f"  • Continuous Days:    {total_pts} days ({start_d} -> {end_d})")
+    print(f"  • Last Trading Price: ₹{last_price:.2f} / quintal")
+
+    # Chronological Split: 80% Train, 10% Validation, 10% Test
+    train_size = int(total_pts * 0.8)
+    val_size = int(total_pts * 0.1)
+    test_size = total_pts - train_size - val_size
+
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaler.fit(prices[:train_size])
+
+    with open(SCALER_FILE, 'wb') as f:
+        pickle.dump(scaler, f)
+
+    all_scaled = scaler.transform(prices)
+    X_all, y_all = create_sequences(all_scaled, LOOKBACK, HORIZON)
+
+    train_end = train_size - LOOKBACK - HORIZON + 1
+    val_end = train_end + val_size
+
+    X_train, y_train = X_all[:train_end], y_all[:train_end]
+    X_val, y_val = X_all[train_end:val_end], y_all[train_end:val_end]
+    X_test, y_test = X_all[val_end:], y_all[val_end:]
+
+    train_loader = DataLoader(TimeSeriesDataset(X_train, y_train), batch_size=BATCH_SIZE, shuffle=True)
+    val_loader = DataLoader(TimeSeriesDataset(X_val, y_val), batch_size=BATCH_SIZE, shuffle=False)
+    test_loader = DataLoader(TimeSeriesDataset(X_test, y_test), batch_size=BATCH_SIZE, shuffle=False)
+
+    # Hardware Device
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU'
+    print(f"\n[2/5] Initializing LSTM model on: {device} ({device_name})...")
+
     torch.manual_seed(42)
     model = MandiPriceLSTM(
         input_size=1,
